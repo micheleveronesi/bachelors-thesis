@@ -1,0 +1,19 @@
+find . -type f -name "*.acn" -delete;
+find . -type f -name "*acr" -delete;
+find . -type f -name "*.alg" -delete;
+find . -type f -name "*.aux" -delete;
+find . -type f -name "*.bcf" -delete;
+find . -type f -name "*.glg" -delete;
+find . -type f -name "*.gls" -delete;
+find . -type f -name "*.ist" -delete;
+find . -type f -name "*.lof" -delete;
+find . -type f -name "*.log" -delete;
+find . -type f -name "*.lot" -delete;
+find . -type f -name "*.pdf" -delete;
+find . -type f -name "*.xml" -delete;
+find . -type f -name "*.gz" -delete;
+find . -type f -name "*.toc" -delete;
+find . -type f -name "*.xmpdata" -delete;
+find . -type f -name "*.xmpi" -delete;
+find . -type f -name "*.glo" -delete;
+rm -rf output
