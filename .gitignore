@@ -16,3 +16,4 @@ output/*
 *.gz
 *.toc
 *.xmpdata
+*.xmpi
