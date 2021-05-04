@@ -17,3 +17,4 @@ output/*
 *.toc
 *.xmpdata
 *.xmpi
+.DS_Store
