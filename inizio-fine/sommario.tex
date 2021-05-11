@@ -15,12 +15,14 @@
 
 \chapter*{Sommario}
 
-Il presente documento descrive il lavoro svolto durante il periodo di stage, della durata di circa trecento ore, dal laureando Pinco Pallino presso l'azienda Azienda S.p.A.
-Gli obbiettivi da raggiungere erano molteplici.\\
-In primo luogo era richiesto lo sviluppo di ...
-In secondo luogo era richiesta l'implementazione di un ... 
-Tale framework permette di registrare gli eventi di un controllore programmabile, quali segnali applicati 
-Terzo ed ultimo obbiettivo era l'integrazione ...
+Il presente documento descrive il lavoro svolto durante il periodo di stage, della durata di circa 320 ore, dal laureando Michele Veronesi presso l'azienda IM4DIGITAL s.r.l.\\
+Il focus del progetto di stage era la creazione di un sistema di navigazione per droni senza pilota, i quali devono sorvolare dei campi di frutta e verdura raccogliendo informazioni
+circa il grado di maturazione degli ortaggi.\\
+In primo luogo era richiesto lo sviluppo della business logic, la quale si interfaccia con il drone per raccogliere dati sul tipo di terreno sorvolato. Inoltre deve interfacciarsi con
+alcune API offerte da Google Maps in seguito descritte nel dettaglio. Dopo aver calcolato il prossimo percorso da far seguire al drone, deve quindi caricarlo su quest'ultimo.\\
+In secondo luogo era richiesta l'implementazione di un modello di machine learning che elaborasse i dati raccolti dal drone, i quali sono le features che descrivono ogni esempio. In uscita
+da questo è necessario dare il tipo di terreno sottostante (classificazione con \textit{k} classi) e quindi la frequenza di sorvolo in quella zona.\\
+Terzo ed ultimo obiettivo era la definizione di un algoritmo per il controllo periodico delle zone scartate dalla classificazione, per rilevare eventuali cambiamenti.
 
 %\vfill
 %
