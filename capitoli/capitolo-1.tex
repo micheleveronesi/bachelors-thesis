@@ -7,32 +7,80 @@
 \label{cap:introduzione}
 %**************************************************************
 
-Introduzione al contesto applicativo.\\
+\intro{Nel corso di questo capitolo si presenterà l'azienda in cui è stato svolto il progetto di stage,
+portando inoltre l'attenzione sugli obiettivi, la pianificazione del lavoro e le modalità in cui si è svolto.}
 
-\noindent Esempio di utilizzo di un termine nel glossario \\
-\gls{api}. \\
+%\noindent Esempio di utilizzo di un termine nel glossario \\
+%\gls{api}. \\
 
-\noindent Esempio di citazione in linea \\
-\cite{site:agile-manifesto}. \\
+%\noindent Esempio di citazione in linea \\
+%\cite{site:agile-manifesto}. \\
 
-\noindent Esempio di citazione nel pie' di pagina \\
-citazione\footcite{womak:lean-thinking} \\
-
-%**************************************************************
-\section{L'azienda}
-
-Descrizione dell'azienda.
+%\noindent Esempio di citazione nel pie' di pagina \\
+%citazione\footcite{womak:lean-thinking} \\
 
 %**************************************************************
-\section{L'idea}
+\section{Contesto aziendale}
 
-Introduzione all'idea dello stage.
+L'azienda ospitante è denominata IM4DIGITAL s.r.l., società neonata gemella di Trizeta s.r.l.\\
+Infatti condividono locali, risorse e obiettivi. In particolare le due aziende operano a stretto contatto con le realtà del territorio,
+al fine di favorire l'automatizzazione di vari processi in settori diversi da quello informatico.\\
+Trizeta è una software house di Padova specializzata in Consulenza, Integrated Solutions e IT Services, dedicata all’ideazione e progettazione “in-house” di soluzioni tecnologiche. Dal 2012 sviluppa internamente soluzioni tecnologiche per automatizzare i processi industriali e accompagnare le imprese in ogni fase della loro Transizione 4.0, dall’ideazione alla messa in opera dei progetti informatici.
+L’offerta di Trizeta favorisce il successo dei clienti attraverso la realizzazione di soluzioni specifiche e alla consolidata esperienza dei suoi collaboratori.
+Dal sistema di controllo e gestione aziendale ADeMES a quello del magazzino ADeWMS, passando per la consulenza da remoto attraverso la realtà aumentata ADeGO, Trizeta offre tutti gli strumenti e i servizi all’avanguardia per portare le aziende nel cuore dell’industria 4.0.
+
+\begin{figure}[!h]
+	\centering 
+	\includegraphics[width=0.5\textwidth]{trizeta.png}
+	\caption{Logo Trizeta}
+\end{figure}
+
+Il team è composto da poche persone, circa una decina. La metodologia di lavoro prediletta è quella agile, in quanto si cerca di intrattenere uno
+stretto rapporto con i clienti. Inoltre questi vengono affiancati costantemente nel processo di digitalizzazione aziendale.
 
 %**************************************************************
+\section{Progetto di stage}
 
-Riguardo la stesura del testo, relativamente al documento sono state adottate le seguenti convenzioni tipografiche:
+Lo scopo principale dello stage è uno studio di fattibilità, seguito dalla realizzazione di una Proof of Concept, per un sistema di navigazione
+per droni senza pilota, il cui obiettivo è quello di sorvolare un campo di frutta identificando le zone in cui le piante soffrono di malattie e lo stato
+di maturazione delle colture.\\
+In particolare parte del sistema deve essere composta da un modello di machine learning per classificare il tipo di oggetti sorvolati dal drone,
+in modo che la traiettoria da seguire sia costantemente aggiornata in modo automatico.\\
+Non è invece oggetto di questa tesi la presentazione dell'interfacciamento con il drone, visto che questo verrà affrontato da terzi solo una volta dimostrata
+la fattibilità del progetto.
+
+\subsection{Analisi dei rischi}
+Vista la totale non definizione della parte di machine learning e l'incarico di eseguire uno studio di fattibilità, viene preventivato il rischio di arrivare ad un risultato.
+In particolare potrebbe non essere identificato un dataset adatto, impedendo la realizzazione del sistema. La mitigazione di questo avviene grazie
+all'incontro con un esperto in geologia pianificato a monte dello stage.\\
+Un altro rischio è derivante dalla conoscenza ancora troppo superficiale circa i sistemi con intelligenza artificiale, sia personale che aziendale (visto che tale
+topic non fa parte del business core).
+
+\subsection{Aspettative aziendali}
+Da questo progetto l'azienda si aspetta la concretizzazione di un'idea ancora molto indefinita. In particolare, è necessario comprendere se questo compito
+è risolvibile con il machine learning o meno, e quale sia il modo migliore di raccogliere dati dal drone.\\
+Non è richiesto un prodotto finito da mandare in un ambiente di produzione, tuttavia sarà necessario testare il modello prodotto per capirne l'affidabilità.\\
+Facoltativamente è richiesto un front end per l'applicazione che permetta di selezionare la zona da sorvolare e che simuli il volo del drone, mostrando il cambiamento
+di traiettoria in base a quanto classificato dal modello.
+
+\subsection{Aspettative personali}
+Da questa attività di tirocinio mi aspetto di raggiungere un livello di autonomia nella progettazione e realizzazione di sistemi informatici più elevato,
+riuscendo a fare scelte critiche riguardo alle tecnologie adottate in base alle necessità, visto che non sono stati imposti vincoli in questo senso.
+Inoltre un obiettivo personale è acquisire capacità riguardo l'analisi ed elaborazione di un dataset ampio, capendo cosa comportino certe azioni sbagliate su questo
+all'intero sistema realizzato.
+
+%**************************************************************
+\section{Pianificazione e modalità di lavoro}
+Le attività sono state svolte in totale autonomia in modalità remoti, intervallate da incontri in sede con cadenza settimanale.\\
+A questi erano presenti il CEO (nonché tutor esterno) e il CTO, il quale mi ha affiancato per tutta la durata del tirocinio verificando
+costantemente il mio avanzamento.\\
+Per quanto riguarda gli obiettivi obbligatori prefissati, si sono identificati i seguenti:
 \begin{itemize}
-	\item gli acronimi, le abbreviazioni e i termini ambigui o di uso non comune menzionati vengono definiti nel glossario, situato alla fine del presente documento;
-	\item per la prima occorrenza dei termini riportati nel glossario viene utilizzata la seguente nomenclatura: \emph{parola}\glsfirstoccur;
-	\item i termini in lingua straniera o facenti parti del gergo tecnico sono evidenziati con il carattere \emph{corsivo}.
+		\item \textbf{OB1:} definizione della rappresentazione degli esempi per il modello di machine learning
+		\item \textbf{OB2:} ricerca di un dataset sufficientemente ampio
+		\item \textbf{OB3:} analisi del dataset e interpretazione dei dati
+		\item \textbf{OB4:} realizzazione del modello di machine learning per la classificazione di zone
+		\item \textbf{OB5:} analisi prestazionale del modello
+		\item \textbf{OB6:} realizzazione di un web server per la predizione in real time
+		\item \textbf{OB7:} realizzazione del programma per il calcolo della traiettoria, che si interfacci con il web server e preveda l'interfacciamento con il drone (per il progetto solo con un mock)
 \end{itemize}
