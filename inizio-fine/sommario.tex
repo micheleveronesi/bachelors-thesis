@@ -16,14 +16,21 @@
 \chapter*{Sommario}
 
 Il presente documento descrive il lavoro svolto durante il periodo di stage, della durata di circa 320 ore, dal laureando Michele Veronesi presso l'azienda IM4DIGITAL s.r.l.\\
-Il focus del progetto di stage era la creazione di un sistema di navigazione per droni senza pilota, i quali devono sorvolare dei campi di frutta e verdura raccogliendo informazioni
-circa il grado di maturazione degli ortaggi.\\
-In primo luogo era richiesto lo sviluppo della business logic, la quale si interfaccia con il drone per raccogliere dati sul tipo di terreno sorvolato. Inoltre deve interfacciarsi con
-alcune API offerte da Google Maps in seguito descritte nel dettaglio. Dopo aver calcolato il prossimo percorso da far seguire al drone, deve quindi caricarlo su quest'ultimo.\\
-In secondo luogo era richiesta l'implementazione di un modello di machine learning che elaborasse i dati raccolti dal drone, i quali sono le features che descrivono ogni esempio. In uscita
-da questo è necessario dare il tipo di terreno sottostante (classificazione con \textit{k} classi) e quindi la frequenza di sorvolo in quella zona.\\
-Terzo ed ultimo obiettivo era la definizione di un algoritmo per il controllo periodico delle zone scartate dalla classificazione, per rilevare eventuali cambiamenti.
-
+Il focus del progetto di stage era lo studio di fattibilità di un sistema di navigazione per droni ricognitivi che decidesse la rotta in base allo spettro luminoso degli oggetti sorvolati.\\
+In particolare, è stato necessario inizialmente identificare il dataset su cui fare lo studio, successivamente si è rivelata fondamentale la pulizia di questo.
+Poi è stato richiesto di prendere in considerazione diversi modelli di machine learning e analizzare le prestazioni nel classificare gli oggetti tramite le loro firme spettrali,
+in modo da selezionare il più adatto.
+Infine il modello allenato è stato caricato ed esposto su infrastruttura cloud, con cui si è interfacciata la business logic che effettua il calcolo del percorso (anch'essa realizzata nel corso del tirocinio).\\
+La suddivisione in capitoli è la seguente:
+\begin{description}
+    \item[{\hyperref[cap:introduzione]{Il primo capitolo}}] presenta la realtà aziendale e gli obiettivi dello stage.
+    
+    \item[{\hyperref[cap:machine-learning]{Il secondo capitolo}}] descrive nel dettaglio la parte di machine learning e analisi dei dati.
+    
+    \item[{\hyperref[cap:business-logic]{Il terzo capitolo}}] racconta la realizzazione della business logic per il calcolo della traiettoria del drone.
+    
+    \item[{\hyperref[cap:conclusione]{Il quarto capitolo}}], infine, porta una valutazione retrospettiva delle attività svolte e alcune considerazioni finali.
+\end{description}
 %\vfill
 %
 %\selectlanguage{english}

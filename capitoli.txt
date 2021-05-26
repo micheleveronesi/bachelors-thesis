@@ -1,0 +1,5 @@
+1) introduzione - descrizione azienda, descrizione progetto di stage, pianificazione attività
+2) parte di machine learning - strumenti utilizzati, dataset e pulizia (interpolazione etc...), scelta modello,
+descrizione rete neurale (teoria e codice)
+3) business logic in java, server web python con flask per rendere disponibile la rete
+4) valutazione retrospettiva stage, conclusioni finali
