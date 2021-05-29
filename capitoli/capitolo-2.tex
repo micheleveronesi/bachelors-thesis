@@ -7,7 +7,42 @@
 \label{cap:machine-learning}
 %**************************************************************
 
-\intro{Brevissima introduzione al capitolo}\\
+\intro{In questo capitolo si andrà a descrivere il dataset utilizzato, la sua elaborazione e lo sviluppo del modello di machine learning.}\\
 
 %**************************************************************
-\section{Processo sviluppo prodotto}
+\section{Descrizione del dataset}
+\subsection{Descrizione del tipo di dati ricercati}
+Dopo l'incontro con un esperto in geologia, a cui l'azienda si è rivolta per una consulenza, si è deciso di descrivere gli esempi che andranno in input al modello di machine learning attraverso la loro firma spettrale.
+La firma spettrale è una caratteristica che ogni materiale ha, ed è specifica per ogni combinazione di riflessi e assorbimenti delle radiazioni elettromagnetiche (EM) a diverse lunghezze d'onda. Conoscendo la firma spettrale di un oggetto, è possibile identificarlo univocamente.
+Un esempio di firma è quello riportato nella figura 2.1, presa dal dataset di seguito presentato.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{esempio_firma.png}
+    \caption{Firma spettrale dell'alizarina cremisi}
+\end{figure}
+
+\subsection{USGS Spectral Library}
+Il dataset scelto per verificare la fattibilità della classificazione di oggetti tramite la loro firma spettrale è stato quello dello United States
+Geological Survey, un'agenzia scientifica del governo degli Stati Uniti d'America.
+Il dataset è denominato USGS Spectral Library Version 7.
+Questo insieme di dati è stato raccolto nel corso degli anni dai ricercatori dell'ente menzionato facendo rilevazioni su migliaia di materiali in laboratorio,
+usando diversi tipi di spettrometri, i quali coprono lunghezze d'onda che vanno dall'ultravioletto all'infrarosso (da \unit{0.2}{\micro\meter} a \unit{200}{\micro\meter}).
+Gli strumenti usati, in dettaglio, sono:
+\begin{itemize}
+    \item Beckman\textsuperscript{TM} 5270, il quale copre l'intervallo spettrale dai 0.2 ai 3 \micro\meter;
+    \item i modelli standard, high-resolution (hi-res) e high-resolution Next Generation (hi-resNG) della Analytical Spectral Devices (ASD);
+          che coprono tutti dai 0.35 ai 2.5 \micro\meter;
+    \item Nicolet\textsuperscript{TM} Fourier Transform Infra-Red (FTIR) che copre dai 1.12 ai 216 \micro\meter;
+    \item NASA Airborne Visible/Infra-Red Imaging Spectrometer (AVIRIS) il quale copre dai 0.37 ai 2.5 \micro\meter.
+\end{itemize}
+Le classi di materiale prese in considerazione sono:
+\begin{itemize}
+    \item minerali;
+    \item terreno (incluso rocce e minerali);
+    \item rivestimenti su superfici rocciose;
+    \item liquidi;
+    \item composti organici;
+    \item materiali artificiali;
+    \item vegetazione e altri materiali biologici.
+\end{itemize}
+Una caratteristica degna di nota del dataset è che in corrispondenza di lunghezze d'onda il cui valore di riflettanza fosse stato eccessivamente sporcato da gas atmosferici il valore è stato impostato al valore $-1.23 \cdot 10^{34}$, il quale corrisponde al "deleted channel" del software SPECPR. Di conseguenza questi valori dovranno essere rimossi, per evitare che il modello prenda degli input inconsistenti durante il processo di allenamento.
