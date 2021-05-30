@@ -60,3 +60,53 @@ In primo luogo è stato necessario formattare i dati contenuti nel dataset in mo
 \end{itemize}
 Successivamente ci sono $k$ numeri che rappresentano lo spettro luminoso, seguiti da altrettanti per le lunghezze d'onda corrispondenti. Più in dettaglio, il numero n-esimo nell'array dello spettro luminoso corrisponde all'n-esimo nell'array delle lunghezze d'onda. Il valore $k$ dipende dallo strumento usato per la rilevazione.\\
 Vista l'eterogeneità delle righe del file, le quali hanno lunghezze diverse a causa della diversità delle misurazioni effettuate, si è resa necessaria una fase di uniformazione. Questa è stata effettuata usando il software proprietario MATLAB\_R2021A, lo script è il seguente:
+
+\begin{lstlisting}
+    clear;
+    clc;
+    dataset = fopen('dataset.txt', 'r');
+    y_file = fopen('y.txt', 'w');
+    x_file = fopen('x.txt', 'w');
+
+    line = fgetl(dataset);
+    while ischar(line)
+        % converting txt line to array
+        splitted = split(line, ';');
+        wavelengths = str2double(split(splitted(3), ','));
+        reflectance = str2double(split(splitted(2), ','));
+        
+        % removing dirty channels
+        idx = ismember(reflectance, 1.23e34);
+        reflectance(idx) = [];
+        wavelengths(idx) = [];
+        
+        % interpolation
+        x = linspace(wavelengths(1), wavelengths(end), 2000);
+        s = spline(wavelengths, reflectance, x);
+        
+        % writing result to files
+        fprintf(y_file, '%d\n', str2double(splitted(1)));
+        fprintf(x_file, '%f ',s);
+        fprintf(x_file, '\n');
+        
+        % getting next line
+        line = fgetl(dataset);
+    end
+
+    fclose(dataset);
+    fclose(y_file);
+    fclose(x_file);
+\end{lstlisting}
+dove il file \verb|dataset.txt| è l'unione dei file generati per ogni cartella in precedenza con lo script Python.
+Ogni linea viene divisa nelle tre parti prima descritte, inoltre dai valori di riflettanza e lunghezza d'onda vengono rimossi i canali con valori eliminati a causa di errori troppo elevati nella rilevazione.
+Successivamente i valori vengono interpolati con una spline cubica e portati ad un'unica dimensionalità di 2000 punti. Quello che interessa per identificare un oggetto tramite la firma spettrale, cosi come dedotto dall'incontro con l'esperto in geologia, è l'andamento del valore di riflettanza, ad esempio particolari picchi o oscillazioni. Di conseguenza non è fondamentale che i valori di lunghezza d'onda siano esattamente gli stessi, perciò l'interpolazione avviene considerando gli estremi dell'intervallo delle lunghezze d'onda per ogni esempio. È stato scelto questo particolare metodo di interpolazione visto che assicura la convergenza anche con nodi equispaziati ed è stabile, al contrario di quello polinomiale.\\
+L'output di questo script sono i due file \verb|x.txt| e \verb|y.txt|, i quali sono pronti ad essere caricati in linguaggio Python per usarli come input del modello di apprendimento automatico.
+
+\subsection{Sviluppo del modello di machine learning}
+\subsubsection{Strumento adottato}
+Per questa parte del progetto ci si è affidati allo strumento offerto as-a-service Google Colaboratory, il quale è un'implementazione del progetto Jupyter con base di archiviazione Google Drive.
+I Jupyter notebook sono un'insieme di script python intervallati da testo descrittivo (comprendente anche la sintassi \LaTeX).
+Il vantaggio nell'utilizzo di questo strumento è innanzitutto la possibilità di usare hardware come GPU offerte gratuitamente dall'infrastruttura cloud di Google. Inoltre è possibile eseguire una parte di codice alla volta o tutto insieme, mantenendo le variabili in memoria RAM per tutta la durata della sessione. È possibile quindi allenare la rete e successivamente eseguire dei test sul modello allenato, stampare grafici con le curve di apprendimento o salvare il modello allenato su Google Drive.
+
+\subsubsection{Scelta del modello}
+Una prima considerazione è stata fatta in base al successivo utilizzo del modello allenato: questo dovrà essere interpellato per effettuare predizioni in real time, dunque il tempo di risposta dovrà essere costante. Ne segue che modelli basati su \textbf{k-nearest-neighbour} non possono essere adottati, in quanto il tempo di esecuzione dell'algoritmo di predizione ricade nella classe di complessità $\theta (n)$ dove $n$ è il numero di esempi classificati. Questo perché la classificazione dei nuovi esempi si basa sul calcolo della distanza dagli esempi nel training set in uno spazio d-dimensionale (dove $d$ è il numero di features, nel nostro caso 2000), successivamente si trovano i $k$ esempi più vicini a quello da classificare, tra questi si guarda la classe più frequente. Una volta che un esempio è classificato viene usato nelle predizioni successive, dunque il tempo per il calcolo delle distanze aumenta. Questo è impraticabile in un sistema real-time, il quale richiede che i tempi di risposta siano costanti, ne segue la decisione prima menzionata.
