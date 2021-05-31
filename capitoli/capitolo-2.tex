@@ -14,7 +14,7 @@
 \subsection{Descrizione del tipo di dati ricercati}
 Dopo l'incontro con un esperto in geologia, a cui l'azienda si è rivolta per una consulenza, si è deciso di descrivere gli esempi che andranno in input al modello di machine learning attraverso la loro firma spettrale.
 La firma spettrale è una caratteristica che ogni materiale ha, ed è specifica per ogni combinazione di riflessi e assorbimenti delle radiazioni elettromagnetiche (EM) a diverse lunghezze d'onda. Conoscendo la firma spettrale di un oggetto, è possibile identificarlo univocamente.
-Un esempio di firma è quello riportato nella figura \ref*{esempio_firma}, presa dal dataset di seguito presentato.
+Un esempio di firma è quello riportato nella figura \ref{esempio_firma}, presa dal dataset di seguito presentato.
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{esempio_firma.png}
@@ -47,12 +47,12 @@ Le classi di materiale prese in considerazione sono:
     \item vegetazione e altri materiali biologici.
 \end{itemize}
 Una caratteristica degna di nota del dataset è che in corrispondenza di lunghezze d'onda il cui valore di riflettanza fosse stato eccessivamente sporcato da gas atmosferici questo è stato impostato a $-1.23 \cdot 10^{34}$, il quale corrisponde al "deleted channel" del software SPECPR (SPECtrum Processing Routines). Di conseguenza questi valori dovranno essere rimossi, per evitare che il modello prenda degli input inconsistenti durante il processo di allenamento.\\
-In totale sono stati presi in considerazione 61453 esempi, con la distribuzione in classi riportata in figura \ref*{distr_esempi}. Come si può notare dal grafico, ci troviamo in presenza di dati sbilanciati.
+In totale sono stati presi in considerazione 61453 esempi, con la distribuzione in classi riportata in figura \ref{distr_esempi}. Come si può notare dal grafico, ci troviamo in presenza di dati sbilanciati, con più della metà appartenente alla classe di rocce e minerali, una minima parte appartenente a rivestimenti e liquidi (in totale $1.5\%$), e i restanti esempi circa equidistribuiti tra le restanti classi.
 
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{distribuzione_dataset.png}
-    \caption{Distribuzione esempi dataset in classi}
+    \caption{Distribuzione esempi del dataset in classi}
     \label{distr_esempi}
 \end{figure}
 
@@ -68,11 +68,13 @@ In primo luogo è stato necessario formattare i dati contenuti nel dataset in mo
     \item $6 \rightarrow$ vegetazione
 \end{itemize}
 Successivamente ci sono $k$ numeri che rappresentano lo spettro luminoso, seguiti da altrettanti per le lunghezze d'onda corrispondenti. Più in dettaglio, il numero n-esimo nell'array dello spettro luminoso corrisponde all'n-esimo nell'array delle lunghezze d'onda. Il valore $k$ dipende dallo strumento usato per la rilevazione.\\
-Vista l'eterogeneità delle righe del file, le quali hanno lunghezze diverse a causa della diversità delle misurazioni effettuate, si è resa necessaria una fase di uniformazione. Questa è stata effettuata usando il software proprietario MATLAB\_R2021A, lo script è il seguente:
+Vista l'eterogeneità delle righe del file, le quali hanno lunghezze diverse a causa della diversità delle misurazioni effettuate, si è resa necessaria una fase di uniformazione. Questa è stata effettuata usando il software proprietario MATLAB\_R2021A, lo script è riportato in \ref{script_matlab}.
 
 \lstset{
     commentstyle=\color{ForestGreen},
-    language=Matlab
+    language=Matlab,
+    caption=Script Matlab per l'elaborazione del dataset,
+    label=script_matlab
 }
 \begin{lstlisting}
     clear;
@@ -138,7 +140,7 @@ Successivamente il modello allenato è stato testato valutando l'accuratezza nel
 
 \subsubsection{Multi Layer Perceptron}
 In seguito all'insuccesso riportato con le Support Vector Machines con kernel lineare si è deciso di passare ad algoritmi di deep learning. Si sono prese in considerazione le classiche rete neurali artificiali a strati, adottando la libreria Pytorch per l'implementazione, visto che permette di addestrare la rete su GPU rendendo questo processo significativamente più veloce.
-L'unità fondamentale in questo tipo di modello è il percettrone (neurone), il quale rappresenta un modello di machine learning semplice, dotato di una funzione e di un valore di attivazione. Ogni unità è connessa a tutte quelle nello strato successivo e ad ogni connessione è associato un peso (appreso tramite backpropagation). Ad ogni strato è inoltre associato un bias. Per calcolare il valore di attivazione di ogni neurone si effettua un'operazione lineare che vede la somma tra il valore di attivazione del neurone nel layer precedente moltiplicato per il peso della connessione, a cui si somma infine il bias del layer (anch'esso appreso automaticamente). Questo è definito passo di forward, l'idea di funzionamento viene meglio presentata nell'algoritmo \ref*{grad_desc_backprop}. Le notazioni adottate sono le seguenti:
+L'unità fondamentale in questo tipo di modello è il percettrone (neurone), il quale rappresenta un modello di machine learning semplice, dotato di una funzione e di un valore di attivazione. Ogni unità è connessa a tutte quelle nello strato successivo e ad ogni connessione è associato un peso (appreso tramite backpropagation). Ad ogni strato è inoltre associato un bias. Per calcolare il valore di attivazione di ogni neurone si effettua un'operazione lineare che vede la somma tra il valore di attivazione del neurone nel layer precedente moltiplicato per il peso della connessione, a cui si somma infine il bias del layer (anch'esso appreso automaticamente). Questo è definito passo di forward, l'idea di funzionamento viene meglio presentata nell'algoritmo \ref{grad_desc_backprop}. Le notazioni adottate sono le seguenti:
 \begin{itemize}
     \item $\theta^{(l)}$ indica il vettore dei pesi delle connessioni tra il layer $l$ e $l+1$. Questo è preso dalla matrice dei pesi $\theta$;
     \item $a^{(l)}$ indica i valori di attivazione dei neuroni al layer $l$, risultati dell'operazione $f(z^{(l)})$ dove $f$ è la funzione di attivazione scelta e $z^{(l)}$ il risultato dell'operazione lineare effettuata tra i valori di attivazione dei neuroni al layer precedente, i pesi nella matrice $\theta$ e i valori di bias;
@@ -178,8 +180,8 @@ Il layer di output sarà composto da 7 percettroni, ognuno dei quali indica la p
 \subsection{Implementazione e validazione}
 Come prima accennato, si è fatto largo uso di Pytorch nell'implementazione della rete. In particolare si è definita la classe \verb|MLP| che eredita da \verb|nn.Module|, ovvero la classe base per ogni modello di rete neurale. Non sono stati ridefiniti metodi degni di nota, se non la possibilità di invocare il costruttore modificando gli iperparametri della rete in modo semplice. Inoltre si è adottata la variante Adam di gradient descent, che assicura una convergenza più veloce. Gli iperparametri adottati sono i seguenti:
 \begin{itemize}
-    \item \verb|layers size:| $[2000, 1500, 500, 7]$, indica il numero di neuroni per ogni layer. In questo caso abbiamo una rete a 3 strati (2 nascosti e uno di output), il primo strato di input è composto da 2000 percettroni, uno per ogni dimensione degli esempi. 1500 percettroni per il primo hidden layer e 500 per il secondo; infine 7 per il layer di output, i cui valori di attivazione indicano la probabilità che l'esempio ricevuto in input appartenga ad una certa classe;
-    \item \verb|activation:| come funzione di attivazione dei neuroni si è scelta la funzione rectifier (ReLU) definita come $f(x) = x^+ = max(0,x)$ (vedi figura \ref*{relu_func});
+    \item \verb|layers size:| $[2000, 1500, 500, 7]$, indica il numero di neuroni per ogni layer. In questo caso abbiamo una rete a 3 strati (2 nascosti e uno di output), il primo strato di input è composto da 2000 percettroni, uno per ogni dimensione degli esempi. 1500 percettroni per il primo hidden layer e 500 per il secondo. Infine 7 unità per il layer di output, per il motivo prima riportato;
+    \item \verb|activation:| come funzione di attivazione dei neuroni si è scelta la funzione rectifier (ReLU) definita come $f(x) = x^+ = max(0,x)$ (vedi figura \ref{relu_func});
     \begin{figure}
         \centering
         \includegraphics[width=0.6\textwidth]{relu.png}
@@ -191,7 +193,7 @@ Come prima accennato, si è fatto largo uso di Pytorch nell'implementazione dell
     \item \verb|init kind:| xavier, indica come inizializzare i pesi $\theta$ delle connessioni tra i neuroni;
     \item \verb|dropout rate:| 0.2 indica che il $20\%$ dei neuroni viene disattivato scegliendo casualmente. È un tipo di regolarizzazione e serve a ridurre overfitting.
 \end{itemize}
-Le prestazioni ottenute con i parametri sopra elencate sono riportate nelle figure \ref*{cross_entropy_loss_plot} e \ref*{accuracy_plot}. 
+Le prestazioni ottenute con i parametri sopra elencate sono riportate nelle figure \ref{cross_entropy_loss_plot} e \ref{accuracy_plot}. 
 
 \begin{figure}
     \centering
@@ -213,4 +215,17 @@ Il dataset è stato suddiviso in tre insiemi disgiunti:
     \item test set: usato nella fase di apprendimento per verificate l'andamento alla fine di ogni epoca, è composto dal $15\%$ degli esempi;
     \item validation set: usato alla fine della fase di apprendimento per valutare le prestazioni del modello allenato, è composto dal restante $15\%$ degli esempi.
 \end{itemize}
-Come si può notare dal grafico \ref*{accuracy_plot}, il valore di accuratezza raggiunto alla cinquantesima epoca è intorno al $97\%$. I risultati di predizione sul set di validazione mostrano un'accuratezza del $98.23\%$, per un totale di 9055 esempi su 9218 classificati correttamente.
+Come si può notare dal grafico \ref{accuracy_plot}, il valore di accuratezza raggiunto alla cinquantesima epoca è intorno al $97\%$. I risultati di predizione sul set di validazione mostrano un'accuratezza del $98.23\%$, per un totale di 9055 esempi su 9218 classificati correttamente.
+
+\section{Esposizione API per predizioni}
+Una volta allenata la rete neurale, questa è stata serializzata in un file attraverso la libreria \verb|pickle| presente nativamente nel linguaggio Python. Per interfacciarla con il codice che calcola la traiettoria del drone e si interfaccia con esso, è stato necessario scegliere tra una delle seguenti opzioni:
+\begin{itemize}
+    \item utilizzare i servizi di tipo serverless offerti da un'infrastruttura cloud, ad esempio quelli di Amazon Web Services Lambda e S3;
+    \item utilizzare un servizio ottimizzato per il machine learning di nome Amazon SageMaker;
+    \item sviluppare un web server da ospitare su una macchina locale oppure remota presa in affitto da tipici servizi di hosting web, ad esempio Aruba.
+\end{itemize}
+La prima opzione è stata prontamente scartata, visto che un'architettura serverless è incompatibile con il nostro caso d'uso. In particolare il modello serializzato ha un peso approssimativo di 90 MB, dunque ad ogni chiamata dell'API è richiesto il caricamento di questo. Una ripresa a freddo ad ogni predizione aumenterebbe notevolmente i costi fatturati dal servizio.\\
+La seconda opzione è stata presa in considerazione inizialmente, tuttavia visto il tempo ristretto per le attività di stage e le difficoltà incontrate nel cercare di caricare il modello, si è deciso di accantonare anche questa possibilità.\\
+La scelta è ricaduta quindi sulla classica architettura client-server, permettendo di caricare il modello allenato solo una volta all'avvio del server, avendo quindi tempi di risposta molto brevi grazie alla ripresa a caldo. Inoltre i costi di un servizio del genere sono ridotti e non è richiesta la scalabilità dell'applicazione.\\
+Per la realizzazione di questo si è usato il web framework \verb|Flask|, ovvero un modulo Python che permette di sviluppare applicazioni web in modo molto semplice. Il server, se avviato in locale, si mette in ascolto sulla porta 5000 e risponde a chiamate POST del protocollo HTTP. Per ottenere una risposta valida è necessario che nel corpo della richiesta venga inclusa una firma spettrale composta da 2000 elementi.\\
+All'avvio il server effettua la deserializzazione del modello utilizzando l'apposita classe \verb|CPU_Unpickler|, la quale si basa ovviamente sulla libreria usata per la serializzazione. Questa è fondamentale visto che la rete è stata addestrata su schede grafiche, dunque si aspetta di effettuare predizioni con lo stesso hardware. La classe infatti rende il modello utilizzabile su macchine con solo CPU, ovvero tutte quelle offerte dai comuni servizi di hosting, trasformandolo in fase di deserializzazione.
