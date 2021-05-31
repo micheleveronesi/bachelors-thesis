@@ -136,7 +136,12 @@ Successivamente il modello allenato è stato testato valutando l'accuratezza nel
 
 \subsubsection{Multi Layer Perceptron}
 In seguito all'insuccesso riportato con le Support Vector Machines con kernel lineare si è deciso di passare ad algoritmi di deep learning. Si sono prese in considerazione le classiche rete neurali artificiali a strati, adottando la libreria Pytorch per l'implementazione, visto che permette di addestrare la rete su GPU rendendo questo processo significativamente più veloce.
-L'unità fondamentale in questo tipo di modello è il percettrone (neurone), il quale rappresenta un modello di machine learning semplice, dotato di una funzione e di un valore di attivazione. Ogni unità è connessa a tutte quelle nello strato successivo e ad ogni connessione è associato un peso (appreso tramite backpropagation). Ad ogni strato è inoltre associato un bias. Per calcolare il valore di attivazione di ogni neurone si effettua un'operazione lineare che vede la somma tra il valore di attivazione del neurone nel layer precedente moltiplicato per il peso della connessione, a cui si somma infine il bias del layer (anch'esso appreso automaticamente). Questo è definito passo di forward, l'idea di funzionamento viene meglio presentata nell'algoritmo \ref*{grad_desc_backprop}.\\
+L'unità fondamentale in questo tipo di modello è il percettrone (neurone), il quale rappresenta un modello di machine learning semplice, dotato di una funzione e di un valore di attivazione. Ogni unità è connessa a tutte quelle nello strato successivo e ad ogni connessione è associato un peso (appreso tramite backpropagation). Ad ogni strato è inoltre associato un bias. Per calcolare il valore di attivazione di ogni neurone si effettua un'operazione lineare che vede la somma tra il valore di attivazione del neurone nel layer precedente moltiplicato per il peso della connessione, a cui si somma infine il bias del layer (anch'esso appreso automaticamente). Questo è definito passo di forward, l'idea di funzionamento viene meglio presentata nell'algoritmo \ref*{grad_desc_backprop}. Le notazioni adottate sono le seguenti:
+\begin{itemize}
+    \item $\theta^{(l)}$ indica il vettore dei pesi delle connessioni tra il layer $l$ e $l+1$. Questo è preso dalla matrice dei pesi $\theta$;
+    \item $a^{(l)}$ indica i valori di attivazione dei neuroni al layer $l$, risultati dell'operazione $f(z^{(l)})$ dove $f$ è la funzione di attivazione scelta e $z^{(l)}$ il risultato dell'operazione lineare effettuata tra i valori di attivazione dei neuroni al layer precedente, i pesi nella matrice $\theta$ e i valori di bias;
+    \item $\delta^{(l)}$ è la variazione desiderata per i valori di attivazione ottenuti al layer $l$.
+\end{itemize}
 Il layer di output sarà composto da 7 percettroni, ognuno dei quali indica la probabilità che un certo esempio appartenga o meno alla classe rappresentata (infatti nel dataset ci sono 7 classi di oggetti).
 
 \begin{algorithm}
@@ -154,14 +159,14 @@ Il layer di output sarà composto da 7 percettroni, ognuno dei quali indica la p
                 \EndFor
                 \State compute $\delta^{(L)} = a^{(L)} - y^{(k)}$
                 \For{l=L-1 down to 2}
-                    \State compute $\delta^{(l)} = ((\theta^{(l)})^T \cdot \delta^{l+1}) \ .* f'(z^{l})$ \Comment backpropagation
+                    \State compute $\delta^{(l)} = ((\theta^{(l)})^T \cdot \delta^{l+1}) \ .* f'(z^{(l)})$ \Comment backpropagation
                 \EndFor
                 \State compute gradients $\Delta^{(l)} = \Delta^{(l)} + \delta^{(l+1)} \cdot (a^{(l)})^T$
             \EndFor
             \State compute $D^{(l)}_{ij} = 
             \begin{cases}
-                \frac{1}{m} \cdot (\Delta^{(l)}_{ij} + \lambda \theta^{(l)}_{ij}) \ \ if \ \ j \neq 0 \\
-                \frac{1}{m} \cdot \Delta^{(l)}_{ij} \ \ if \ \ j = 0
+                \frac{1}{m} \cdot (\Delta^{(l)}_{ij} + \lambda \theta^{(l)}_{ij}) $ if $ j \neq 0 \\
+                \frac{1}{m} \cdot \Delta^{(l)}_{ij} $ if $ j = 0
             \end{cases}$
             \State $\theta^{(l)}_{ij} = \theta^{(l)}_{ij} - \eta \cdot D_{ij}^{(l)}$
         \EndFor
@@ -171,7 +176,7 @@ Il layer di output sarà composto da 7 percettroni, ognuno dei quali indica la p
 \subsection{Implementazione e validazione}
 Come prima accennato, si è fatto largo uso di Pytorch nell'implementazione della rete. In particolare si è definita la classe \verb|MLP| che eredita da \verb|nn.Module|, ovvero la classe base per ogni modello di rete neurale. Non sono stati ridefiniti metodi degni di nota, se non la possibilità di invocare il costruttore modificando gli iperparametri della rete in modo semplice. Inoltre si è adottata la variante Adam di gradient descent, che assicura una convergenza più veloce. Gli iperparametri adottati sono i seguenti:
 \begin{itemize}
-    \item \verb|layers size:| $[2000, 1500, 500, 7]$, indica il numero di neuroni per ogni layer. In questo caso abbiamo una rete a 3 strati (2 nascosti e uno di output);
+    \item \verb|layers size:| $[2000, 1500, 500, 7]$, indica il numero di neuroni per ogni layer. In questo caso abbiamo una rete a 3 strati (2 nascosti e uno di output), il primo strato di input è composto da 2000 percettroni, uno per ogni dimensione degli esempi. 1500 percettroni per il primo hidden layer e 500 per il secondo; infine 7 per il layer di output, i cui valori di attivazione indicano la probabilità che l'esempio ricevuto in input appartenga ad una certa classe;
     \item \verb|activation:| come funzione di attivazione dei neuroni si è scelta la funzione rectifier (ReLU) definita come $f(x) = x^+ = max(0,x)$ (vedi figura \ref*{relu_func});
     \begin{figure}
         \centering
