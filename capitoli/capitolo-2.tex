@@ -70,17 +70,20 @@ In primo luogo è stato necessario formattare i dati contenuti nel dataset in mo
 Successivamente ci sono $k$ numeri che rappresentano lo spettro luminoso, seguiti da altrettanti per le lunghezze d'onda corrispondenti. Più in dettaglio, il numero n-esimo nell'array dello spettro luminoso corrisponde all'n-esimo nell'array delle lunghezze d'onda. Il valore $k$ dipende dallo strumento usato per la rilevazione.\\
 Vista l'eterogeneità delle righe del file, le quali hanno lunghezze diverse a causa della diversità delle misurazioni effettuate, si è resa necessaria una fase di uniformazione. Questa è stata effettuata usando il software proprietario MATLAB\_R2021A, lo script è il seguente:
 
+\lstset{
+    commentstyle=\color{ForestGreen},
+    language=Matlab
+}
 \begin{lstlisting}
     clear;
     clc;
     dataset = fopen('dataset.txt', 'r');
     y_file = fopen('y.txt', 'w');
     x_file = fopen('x.txt', 'w');
-
-    line = fgetl(dataset);
-    while ischar(line)
+    current = fgetl(dataset);
+    while ischar(current)
         % converting txt line to array
-        splitted = split(line, ';');
+        splitted = split(current, ';');
         wavelengths = str2double(split(splitted(3), ','));
         reflectance = str2double(split(splitted(2), ','));
         
@@ -94,14 +97,13 @@ Vista l'eterogeneità delle righe del file, le quali hanno lunghezze diverse a c
         s = spline(wavelengths, reflectance, x);
         
         % writing result to files
-        fprintf(y_file, '%d\n', str2double(splitted(1)));
+        fprintf(y_file, '%d\n', splitted(1));
         fprintf(x_file, '%f ',s);
         fprintf(x_file, '\n');
         
         % getting next line
-        line = fgetl(dataset);
+        current = fgetl(dataset);
     end
-
     fclose(dataset);
     fclose(y_file);
     fclose(x_file);
