@@ -14,12 +14,12 @@
 \subsection{Descrizione del tipo di dati ricercati}
 Dopo l'incontro con un esperto in geologia, a cui l'azienda si è rivolta per una consulenza, si è deciso di descrivere gli esempi che andranno in input al modello di machine learning attraverso la loro firma spettrale.
 La firma spettrale è una caratteristica che ogni materiale ha, ed è specifica per ogni combinazione di riflessi e assorbimenti delle radiazioni elettromagnetiche (EM) a diverse lunghezze d'onda. Conoscendo la firma spettrale di un oggetto, è possibile identificarlo univocamente.
-Un esempio di firma è quello riportato nella figura \ref{esempio_firma}, presa dal dataset di seguito presentato.
+Un esempio di firma è quello riportato nella figura \ref{fig:esempio_firma}, presa dal dataset di seguito presentato.
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{esempio_firma.png}
     \caption{Firma spettrale dell'alizarina cremisi}
-    \label{esempio_firma}
+    \label{fig:esempio_firma}
 \end{figure}
 
 \subsection{USGS Spectral Library}
@@ -125,7 +125,14 @@ Il vantaggio nell'utilizzo di questo strumento è innanzitutto la possibilità d
 
 \subsection{Scelta del modello}
 \subsubsection{k-nearest-neighbour}
-Una prima considerazione è stata fatta in base al successivo utilizzo del modello allenato: questo dovrà essere interpellato per effettuare predizioni in real time, dunque il tempo di risposta dovrà essere costante. Ne segue che modelli basati su \textbf{k-nearest-neighbour} non possono essere adottati, in quanto il tempo di esecuzione dell'algoritmo di predizione ricade nella classe di complessità $\theta (n)$ dove $n$ è il numero di esempi classificati. Questo perché la classificazione dei nuovi esempi si basa sul calcolo della distanza dagli esempi nel training set in uno spazio d-dimensionale (dove $d$ è il numero di features, nel nostro caso 2000), successivamente si trovano i $k$ esempi più vicini a quello da classificare, tra questi si guarda la classe più frequente. Una volta che un esempio è classificato viene usato nelle predizioni successive, dunque il tempo per il calcolo delle distanze aumenta. Questo è impraticabile in un sistema real-time, il quale richiede che i tempi di risposta siano costanti, ne segue la decisione prima menzionata.
+Una prima considerazione è stata fatta in base al successivo utilizzo del modello allenato: questo dovrà essere interpellato per effettuare predizioni in real time, dunque il tempo di risposta dovrà essere costante. Ne segue che modelli basati su k-nearest-neighbour non possono essere adottati, in quanto il tempo di esecuzione dell'algoritmo di predizione ricade nella classe di complessità $\theta (n)$ dove $n$ è il numero di esempi classificati. Questo perché la classificazione dei nuovi esempi si basa sul calcolo della distanza dagli esempi nel training set in uno spazio d-dimensionale (dove $d$ è il numero di features, nel nostro caso 2000), successivamente si trovano i $k$ esempi più vicini a quello da classificare, tra questi si guarda la classe più frequente. Una volta che un esempio è classificato viene usato nelle predizioni successive, dunque il tempo per il calcolo delle distanze aumenta. Questo è impraticabile in un sistema real-time, il quale richiede che i tempi di risposta siano costanti, ne segue la decisione prima menzionata. Un esempio di funzionamento di questo algoritmo si può osservare nella figura \ref{fig:knn}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{immagini/knn.png}
+    \caption{Esempio k-nearest-neighbour in 2 dimensioni}
+    \label{fig:knn}
+\end{figure}
 
 \subsubsection{Support Vector Machines}
 Questo tipo di modello è stato preso in considerazione visto che è un algoritmo di apprendimento supervisionato usato spesso per compiti di classificazione. È un modello di classificazione lineare ma può essere usato efficientemente per effettuare classificazioni non lineari usando il \textit{kernel trick}. Inoltre è molto efficace in spazi a molte dimensioni.
@@ -140,17 +147,18 @@ Successivamente il modello allenato è stato testato valutando l'accuratezza nel
 
 \subsubsection{Multi Layer Perceptron}
 In seguito all'insuccesso riportato con le Support Vector Machines con kernel lineare si è deciso di passare ad algoritmi di deep learning. Si sono prese in considerazione le classiche rete neurali artificiali a strati, adottando la libreria Pytorch per l'implementazione, visto che permette di addestrare la rete su GPU rendendo questo processo significativamente più veloce.
-L'unità fondamentale in questo tipo di modello è il percettrone (neurone), il quale rappresenta un modello di machine learning semplice, dotato di una funzione e di un valore di attivazione. Ogni unità è connessa a tutte quelle nello strato successivo e ad ogni connessione è associato un peso (appreso tramite backpropagation). Ad ogni strato è inoltre associato un bias. Per calcolare il valore di attivazione di ogni neurone si effettua un'operazione lineare che vede la somma tra il valore di attivazione del neurone nel layer precedente moltiplicato per il peso della connessione, a cui si somma infine il bias del layer (anch'esso appreso automaticamente). Questo è definito passo di forward, l'idea di funzionamento viene meglio presentata nell'algoritmo \ref{grad_desc_backprop}. Le notazioni adottate sono le seguenti:
+L'unità fondamentale in questo tipo di modello è il percettrone (neurone), il quale rappresenta un modello di machine learning semplice, dotato di una funzione e di un valore di attivazione. Ogni unità è connessa a tutte quelle nello strato successivo e ad ogni connessione è associato un peso (appreso tramite backpropagation). Ad ogni strato è inoltre associato un bias. Per calcolare il valore di attivazione di ogni neurone si effettua un'operazione lineare che vede la somma tra il valore di attivazione del neurone nel layer precedente moltiplicato per il peso della connessione, a cui si somma infine il bias del layer (anch'esso appreso automaticamente). Questo è definito passo di forward, l'idea di funzionamento viene meglio presentata nell'algoritmo \ref{alg:grad_desc_backprop}. Le notazioni adottate sono le seguenti:
 \begin{itemize}
     \item $\theta^{(l)}$ indica il vettore dei pesi delle connessioni tra il layer $l$ e $l+1$. Questo è preso dalla matrice dei pesi $\theta$;
     \item $a^{(l)}$ indica i valori di attivazione dei neuroni al layer $l$, risultati dell'operazione $f(z^{(l)})$ dove $f$ è la funzione di attivazione scelta e $z^{(l)}$ il risultato dell'operazione lineare effettuata tra i valori di attivazione dei neuroni al layer precedente, i pesi nella matrice $\theta$ e i valori di bias;
     \item $\delta^{(l)}$ è la variazione desiderata per i valori di attivazione ottenuti al layer $l$.
 \end{itemize}
+Si può integrare l'algoritmo con la figura \ref{fig:neural_network}.\\
 Il layer di output sarà composto da 7 percettroni, ognuno dei quali indica la probabilità che un certo esempio appartenga o meno alla classe rappresentata (infatti nel dataset ci sono 7 classi di oggetti).
 
 \begin{algorithm}
     \caption{Gradient descent with backpropagation}
-    \label{grad_desc_backprop}
+    \label{alg:grad_desc_backprop}
     \begin{algorithmic}
         \State Training samples $\{ (x^{(1)}, y^{(1)}), \dotso, (x^{(m)}, y^{(m)}) \}$
         \State Initialize $\theta^{l}$ with random values close to zero, e.g. $\in [-\epsilon, +\epsilon]$
@@ -177,36 +185,43 @@ Il layer di output sarà composto da 7 percettroni, ognuno dei quali indica la p
     \end{algorithmic}
 \end{algorithm}
 
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{immagini/neural_network.png}
+    \caption{Esempio di rete neurale}
+    \label{fig:neural_network}
+\end{figure}
+
 \subsection{Implementazione e validazione}
 Come prima accennato, si è fatto largo uso di Pytorch nell'implementazione della rete. In particolare si è definita la classe \verb|MLP| che eredita da \verb|nn.Module|, ovvero la classe base per ogni modello di rete neurale. Non sono stati ridefiniti metodi degni di nota, se non la possibilità di invocare il costruttore modificando gli iperparametri della rete in modo semplice. Inoltre si è adottata la variante Adam di gradient descent, che assicura una convergenza più veloce. Gli iperparametri adottati sono i seguenti:
 \begin{itemize}
     \item \verb|layers size:| $[2000, 1500, 500, 7]$, indica il numero di neuroni per ogni layer. In questo caso abbiamo una rete a 3 strati (2 nascosti e uno di output), il primo strato di input è composto da 2000 percettroni, uno per ogni dimensione degli esempi. 1500 percettroni per il primo hidden layer e 500 per il secondo. Infine 7 unità per il layer di output, per il motivo prima riportato;
-    \item \verb|activation:| come funzione di attivazione dei neuroni si è scelta la funzione rectifier (ReLU) definita come $f(x) = x^+ = max(0,x)$ (vedi figura \ref{relu_func});
+    \item \verb|activation:| come funzione di attivazione dei neuroni si è scelta la funzione rectifier (ReLU) definita come $f(x) = x^+ = max(0,x)$ (vedi figura \ref{fig:relu_func});
     \begin{figure}
         \centering
         \includegraphics[width=0.6\textwidth]{relu.png}
         \caption{Funzione ReLU}
-        \label{relu_func}
+        \label{fig:relu_func}
     \end{figure}
     \item \verb|learning rate:| $10^{-4}$, questo è il parametro $\eta$ usato in gradient descent. Se troppo basso l'algoritmo diventa lento, se troppo alto si rischia di fare overshooting (saltare il minimo della funzione di costo) o addirittura divergere;
     \item \verb|epochs:| 50, indica il numero di epoche nell'algoritmo di apprendimento;
     \item \verb|init kind:| xavier, indica come inizializzare i pesi $\theta$ delle connessioni tra i neuroni;
     \item \verb|dropout rate:| 0.2 indica che il $20\%$ dei neuroni viene disattivato scegliendo casualmente. È un tipo di regolarizzazione e serve a ridurre overfitting.
 \end{itemize}
-Le prestazioni ottenute con i parametri sopra elencate sono riportate nelle figure \ref{cross_entropy_loss_plot} e \ref{accuracy_plot}. 
+Le prestazioni ottenute con i parametri sopra elencate sono riportate nelle figure \ref{fig:cross_entropy_loss_plot} e \ref{fig:accuracy_plot}. 
 
 \begin{figure}
     \centering
     \includegraphics[width=0.9\textwidth]{cross_entropy_loss.png}
     \caption{Cross Entropy Loss plot}
-    \label{cross_entropy_loss_plot}
+    \label{fig:cross_entropy_loss_plot}
 \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[width=0.9\textwidth]{accuracy.png}
     \caption{Accuracy plot}
-    \label{accuracy_plot}
+    \label{fig:accuracy_plot}
 \end{figure}
 Nella prima si vede come la funzione di costo diminuisca con l'avanzare delle epoche di apprendimento, nella seconda si può notare l'aumentare dell'accuratezza anche nel set di test.\\
 Il dataset è stato suddiviso in tre insiemi disgiunti:
