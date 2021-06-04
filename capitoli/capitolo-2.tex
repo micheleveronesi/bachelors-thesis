@@ -230,7 +230,7 @@ Il dataset è stato suddiviso in tre insiemi disgiunti:
     \item test set: usato nella fase di apprendimento per verificate l'andamento alla fine di ogni epoca, è composto dal $15\%$ degli esempi;
     \item validation set: usato alla fine della fase di apprendimento per valutare le prestazioni del modello allenato, è composto dal restante $15\%$ degli esempi.
 \end{itemize}
-Come si può notare dal grafico \ref{accuracy_plot}, il valore di accuratezza raggiunto alla cinquantesima epoca è intorno al $97\%$. I risultati di predizione sul set di validazione mostrano un'accuratezza del $98.23\%$, per un totale di 9055 esempi su 9218 classificati correttamente.
+Come si può notare dal grafico \ref{fig:accuracy_plot}, il valore di accuratezza raggiunto alla cinquantesima epoca è intorno al $97\%$. I risultati di predizione sul set di validazione mostrano un'accuratezza del $98.23\%$, per un totale di 9055 esempi su 9218 classificati correttamente.
 
 \section{Esposizione API per predizioni}
 Una volta allenata la rete neurale, questa è stata serializzata in un file attraverso la libreria \verb|pickle| presente nativamente nel linguaggio Python. Per interfacciarla con il codice che calcola la traiettoria del drone e si interfaccia con esso, è stato necessario scegliere tra una delle seguenti opzioni:
