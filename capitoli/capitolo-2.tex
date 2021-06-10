@@ -145,6 +145,13 @@ Per l'implementazione ci si è affidati alla libreria scikit-learn, la quale off
 Il modello è stato inserito in una pipeline che prevedesse uno step precedente per la normalizzazione delle features tramite la classe \verb|StandardScaler| offerta dalla stessa libreria. Si è applicata inoltre la procedura di hold-out, che prevede la suddivisione del dataset in due parti, training e validation set. La dimensione scelta per il primo è $80\%$, per il secondo il restante $20\%$, la suddivisione è stata effettuata in modo casuale usando la funzione \verb|train_test_split| offerta dalla stessa libreria.\\
 Successivamente il modello allenato è stato testato valutando l'accuratezza nell'effettuare le predizioni sul set di validazione, le prove hanno dato esito negativo visto che non si è superato il $62\%$ in questa metrica.
 
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{immagini/svm.png}
+    \caption{Esempio di separazione lineare usando le SVM}
+    \label{fig:svm}
+\end{figure}
+
 \subsubsection{Multi Layer Perceptron}
 In seguito all'insuccesso riportato con le Support Vector Machines con kernel lineare si è deciso di passare ad algoritmi di deep learning. Si sono prese in considerazione le classiche rete neurali artificiali a strati, adottando la libreria Pytorch per l'implementazione, visto che permette di addestrare la rete su GPU rendendo questo processo significativamente più veloce.
 L'unità fondamentale in questo tipo di modello è il percettrone (neurone), il quale rappresenta un modello di machine learning semplice, dotato di una funzione e di un valore di attivazione. Ogni unità è connessa a tutte quelle nello strato successivo e ad ogni connessione è associato un peso (appreso tramite backpropagation). Ad ogni strato è inoltre associato un bias. Per calcolare il valore di attivazione di ogni neurone si effettua un'operazione lineare che vede la somma tra il valore di attivazione del neurone nel layer precedente moltiplicato per il peso della connessione, a cui si somma infine il bias del layer (anch'esso appreso automaticamente). Questo è definito passo di forward, l'idea di funzionamento viene meglio presentata nell'algoritmo \ref{alg:grad_desc_backprop}. Le notazioni adottate sono le seguenti:
@@ -154,7 +161,18 @@ L'unità fondamentale in questo tipo di modello è il percettrone (neurone), il 
     \item $\delta^{(l)}$ è la variazione desiderata per i valori di attivazione ottenuti al layer $l$.
 \end{itemize}
 Si può integrare l'algoritmo con la figura \ref{fig:neural_network}.\\
-Il layer di output sarà composto da 7 percettroni, ognuno dei quali indica la probabilità che un certo esempio appartenga o meno alla classe rappresentata (infatti nel dataset ci sono 7 classi di oggetti).
+Il layer di output sarà composto da 7 percettroni, ognuno dei quali indica la probabilità che un certo esempio appartenga o meno alla classe rappresentata (infatti nel dataset ci sono 7 classi di oggetti). Inoltre i valori finali attraversano un layer con la funzione \textit{softmax} $\sigma(z)$ con $z \in \mathbb{R}^k$, la quale da un array di valori reali restituisce un array di probabilità la cui somma è 1. Un esempio di applicazione della funzione softmax si può vedere in figura \ref{fig:softmax}.
+
+\[
+    \sigma: \mathbb{R}^k \rightarrow \{ z \in \mathbb{R}^k  | z_i > 0, \sum_{i=1}^k z_i = 1 \}
+\]
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{immagini/softmax.png}
+    \caption{Esempio di funzione softmax}
+    \label{fig:softmax}
+\end{figure}
 
 \begin{algorithm}
     \caption{Gradient descent with backpropagation}
@@ -206,9 +224,9 @@ Come prima accennato, si è fatto largo uso di Pytorch nell'implementazione dell
     \item \verb|learning rate:| $10^{-4}$, questo è il parametro $\eta$ usato in gradient descent. Se troppo basso l'algoritmo diventa lento, se troppo alto si rischia di fare overshooting (saltare il minimo della funzione di costo) o addirittura divergere;
     \item \verb|epochs:| 50, indica il numero di epoche nell'algoritmo di apprendimento;
     \item \verb|init kind:| xavier, indica come inizializzare i pesi $\theta$ delle connessioni tra i neuroni;
-    \item \verb|dropout rate:| 0.2 indica che il $20\%$ dei neuroni viene disattivato scegliendo casualmente. È un tipo di regolarizzazione e serve a ridurre overfitting.
+    \item \verb|dropout rate:| 0.2 indica che il $20\%$ dei neuroni viene disattivato scegliendo casualmente. È un tipo di regolarizzazione e serve a ridurre l'overfitting.
 \end{itemize}
-Le prestazioni ottenute con i parametri sopra elencate sono riportate nelle figure \ref{fig:cross_entropy_loss_plot} e \ref{fig:accuracy_plot}. 
+Le prestazioni ottenute con i parametri sopra elencati sono riportate nelle figure \ref{fig:cross_entropy_loss_plot} e \ref{fig:accuracy_plot}. 
 
 \begin{figure}
     \centering
@@ -227,13 +245,13 @@ Nella prima si vede come la funzione di costo diminuisca con l'avanzare delle ep
 Il dataset è stato suddiviso in tre insiemi disgiunti:
 \begin{itemize}
     \item training set: usato per la fase di apprendimento è composto dal $70\%$ degli esempi;
-    \item test set: usato nella fase di apprendimento per verificate l'andamento alla fine di ogni epoca, è composto dal $15\%$ degli esempi;
+    \item test set: usato nella fase di apprendimento per verificare le prestazioni alla fine di ogni epoca, è composto dal $15\%$ degli esempi;
     \item validation set: usato alla fine della fase di apprendimento per valutare le prestazioni del modello allenato, è composto dal restante $15\%$ degli esempi.
 \end{itemize}
 Come si può notare dal grafico \ref{fig:accuracy_plot}, il valore di accuratezza raggiunto alla cinquantesima epoca è intorno al $97\%$. I risultati di predizione sul set di validazione mostrano un'accuratezza del $98.23\%$, per un totale di 9055 esempi su 9218 classificati correttamente.
 
 \section{Esposizione API per predizioni}
-Una volta allenata la rete neurale, questa è stata serializzata in un file attraverso la libreria \verb|pickle| presente nativamente nel linguaggio Python. Per interfacciarla con il codice che calcola la traiettoria del drone e si interfaccia con esso, è stato necessario scegliere tra una delle seguenti opzioni:
+Una volta allenata la rete neurale, questa è stata serializzata in un file attraverso la libreria \verb|pickle| presente nativamente nel linguaggio Python. Per interfacciarla con il codice che calcola la traiettoria del drone è stato necessario scegliere tra una delle seguenti opzioni:
 \begin{itemize}
     \item utilizzare i servizi di tipo serverless offerti da un'infrastruttura cloud, ad esempio quelli di Amazon Web Services Lambda e S3;
     \item utilizzare un servizio ottimizzato per il machine learning di nome Amazon SageMaker;

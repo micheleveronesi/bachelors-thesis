@@ -36,7 +36,7 @@ Nel nostro caso al posto del Database, alla base, c'è il server che espone la r
 \end{figure}
 
 \subsection{Strato di business}
-Salendo, a questo livello, troviamo l'insieme delle classi atte al calcolo del percorso che il drone dovrà eseguire. Si riporta nell'algoritmo \ref{alg:calculate_track} lo pseudocodice per il calcolo del percorso. L'input sono due array paralleli $x$ e $y$ di grandezza $n$ (con $n$ il numero di punti da attraversare) contenenti le coordinate. Indossando un altro paio di occhiali, possiamo notare come questo problema è riconducibile ad un \textit{grafo completo} $K_n$, in cui ogni nodo è connesso da un arco a tutti gli altri. Ognuno di questi archi ha un costo di percorrenza che dipende direttamente dalla distanza tra i due punti, espressi in coordinate. Ci troviamo di fronte al problema del commesso viaggiatore.\\
+Salendo, a questo livello, troviamo l'insieme delle classi atte al calcolo del percorso che il drone dovrà eseguire. Si riporta nell'algoritmo \ref{alg:calculate_track} lo pseudocodice per il calcolo del percorso. L'input sono due array paralleli $x$ e $y$ di grandezza $n$ (con $n$ il numero di punti da attraversare) contenenti le coordinate. Possiamo notare come questo problema è riconducibile ad un grafo completo $K_n$, in cui ogni nodo è connesso da un arco a tutti gli altri. Ognuno di questi archi ha un costo di percorrenza che dipende direttamente dalla distanza tra i due punti, espressi in coordinate. Ci troviamo di fronte al problema del commesso viaggiatore.\\
 È possibile vedere il diagramma delle classi per questo layer nella figura \ref{fig:class_diagram_business}.
 
 \begin{figure}
@@ -51,7 +51,8 @@ Il nome nasce da una tipica rappresentazione del problema: dato un insieme di ci
 
 \subsubsection{Algoritmo euristico di risoluzione}
 Per affrontare il problema si è deciso di realizzare un algoritmo euristico, ovvero la cui soluzione prodotta è probabilmente buona ma non ottima.
-Come si può notare, il costo computazionale della procedura \verb|nearest_point| è lineare, dunque il costo totale della procedura rientra nella classe di algoritmi $\theta(n^2)$ con consumo di memoria costante. Considerando che nell'applicazione reale il valore di $n$ non raggiungerà mai valori elevati, il risultato è accettabile. Inoltre è possibile ottimizzare questo algoritmo durante l'implementazione rimuovendo i punti già inclusi nel cammino dagli array $x$ e $y$ al posto di porre le coordinate a infinito.
+Come si può notare, il costo computazionale della procedura \verb|nearest_point| è lineare, dunque il costo totale della procedura rientra nella classe di algoritmi $\theta(n^2)$ con consumo di memoria costante. Considerando che nell'applicazione reale il valore di $n$ non raggiungerà mai valori elevati, il risultato è accettabile. Inoltre è possibile ottimizzare questo algoritmo durante l'implementazione rimuovendo i punti già inclusi nel cammino dagli array $x$ e $y$ invece di porre le coordinate a infinito.
+Per il calcolo della distanza tra due coordinate, si è deciso di non considerare la curvatura terrestre, visto che nell'applicazione reale i punti saranno molto vicini tra loro e che il software realizzato è solo una Proof of Concept.
 
 \begin{algorithm}
     \caption{Algoritmo per il calcolo del percorso}
@@ -61,20 +62,20 @@ Come si può notare, il costo computazionale della procedura \verb|nearest_point
         \Require $x\_start \notin x$ e $y\_start \notin y$
         \Ensure $x\_path[1 \dotso n+1]$ e $y\_path[1 \dotso n+1]$
         \State Inizializza array $x\_path[1 \dotso n+1]$, $y\_path[1 \dotso n+1]$
-        \State $x\_prev = x\_start$
-        \State $y\_prev = y\_start$
-        \For{$i=1$ to $n$}
-            \State $next = \verb|nearest_point|(x\_prev,\  y\_prev,\  x,\  y)$
+        \State $x\_prev \leftarrow x\_start$
+        \State $y\_prev \leftarrow y\_start$
+        \For{$i \leftarrow 1$ to $n$}
+            \State $next \leftarrow \verb|nearest_point|(x\_prev,\  y\_prev,\  x,\  y)$
             \Comment Algoritmo \ref{alg:nearest_point}
-            \State $x\_path[i] = x[next]$
-            \State $y\_path[i] = y[next]$
-            \State $x[next] = \infty$
-            \State $y[next] = \infty$
-            \State $x\_prev = x[i]$
-            \State $y\_prev = y[i]$
+            \State $x\_path[i] \leftarrow x[next]$
+            \State $y\_path[i] \leftarrow y[next]$
+            \State $x[next] \leftarrow \infty$
+            \State $y[next] \leftarrow \infty$
+            \State $x\_prev \leftarrow x[i]$
+            \State $y\_prev \leftarrow y[i]$
         \EndFor
-        \State $x\_path[n+1] = x\_start$ \Comment Punto di arrivo
-        \State $y\_path[n+1] = y\_start$
+        \State $x\_path[n+1] \leftarrow x\_start$ \Comment Punto di arrivo
+        \State $y\_path[n+1] \leftarrow y\_start$
         \State \Return $(x\_path , y\_path)$
     \end{algorithmic}
 \end{algorithm}
@@ -86,13 +87,13 @@ Come si può notare, il costo computazionale della procedura \verb|nearest_point
         \Require $x\_from$, $y\_from$ il punto di partenza
         \Require $x\_to[1 \dotso n]$, $y\_to[1 \dotso n]$ array con le $n$ destinazioni possibili differenti
         \Ensure $minIndex$ l'indice della posizione più vicina
-        \State $minIndex = -1$
-        \State $minDistance = \infty$
-        \For{$i=1$ to $n$}
-            \State $distance = \sqrt{(x\_from - x\_to[i])^2 + (y\_from - y\_to[i])^2}$
+        \State $minIndex \leftarrow -1$
+        \State $minDistance \leftarrow \infty$
+        \For{$i \leftarrow 1$ to $n$}
+            \State $distance \leftarrow \sqrt{(x\_from - x\_to[i])^2 + (y\_from - y\_to[i])^2}$
             \If{$distance < minDistance$}
-                \State $minDistance = distance$
-                \State $minIndex = i$
+                \State $minDistance \leftarrow distance$
+                \State $minIndex \leftarrow i$
             \EndIf
         \EndFor
         \State \Return $minIndex$
@@ -101,13 +102,14 @@ Come si può notare, il costo computazionale della procedura \verb|nearest_point
 
 \subsection{Strato di presentazione}
 Questo livello ha il compito di esporre tutto il monolite all'esterno.
-Va premesso che il drone che andrà ad interfacciarsi con questo software avrà una scheda Arduino, dunque in grado di effettuare chiamate HTTP ad un end-point indicato.
-Nel nostro specifico caso si tratta di esporne due:
+Va premesso che il drone che andrà ad interfacciarsi con questo software avrà una scheda Arduino, dunque in grado di effettuare chiamate HTTP ad un end-point indicato grazie al linguaggio C++.
+Nel nostro specifico caso si tratta di esporne tre:
 \begin{itemize}
     \item \verb|/track|: questo risponde a chiamate HTTP di tipo GET, viene invocato dal drone quando ha bisogno di conoscere il tracciato che deve percorrere;
-    \item \verb|/data|: questo risponde a chiamate HTTP di tipo POST, viene invocato dal drone quando ha fatto delle rilevazioni con lo spettrometro e le invia al software in modo che il percorso di aggiorni. La risposta può essere un successo o un fallimento.
+    \item \verb|/data|: questo risponde a chiamate HTTP di tipo POST, viene invocato dal drone quando ha fatto delle rilevazioni con lo spettrometro e le invia al software in modo che il percorso di aggiorni. La risposta può essere un successo o un fallimento;
+    \item \verb|/perimeter|: risponde a chiamate HTTP di tipo PATCH, serve a impostare il perimetro di sorvolo del drone.
 \end{itemize}
-È possibile vedere il diagramma delle classi per questo layer nella figura \ref{fig:class_diagram_presentation}.
+È possibile vedere il diagramma delle classi per questo layer nella figura \ref{fig:class_diagram_presentation}. Le API sono state documentate seguendo lo standard OpenAPI 3.0.0.
 
 \begin{figure}
     \centering
