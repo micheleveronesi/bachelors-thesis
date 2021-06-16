@@ -142,7 +142,10 @@ Nel nostro specifico caso si tratta di esporne tre:
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{immagini/presentation_classes.png}
+    \includegraphics[width=\textwidth]{immagini/presentation_classes.png}
     \caption{Diagramma delle classi per lo strato di presentazione}
     \label{fig:class_diagram_presentation}
 \end{figure}
+
+\section{Test e copertura}
+Per garantire un certo grado di affidabilità del codice scritto in Java si sono implementati molti test di unità in modo da garantire la copertura del codice più alta possibile. L'esecuzione dei test e il relativo calcolo della percentuale di righe di codice coperte viene fatto nel processo di Continuous Integration implementato attraverso il servizio offerto TravisCI. Questo offre delle macchine virtuali eseguite su architettura cloud ed offerte as-a-service. Ad ogni push nella repository principale (ospitata su GitHub) viene scatenato uno script che esegue tutti i test di unità, se questi passano allora viene calcolata la coverage. Entrambi i risultati (successo dei test e percentuale di coverage) vengono riportati nella pagina GitHub della repository.
