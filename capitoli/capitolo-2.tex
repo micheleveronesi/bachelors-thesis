@@ -47,7 +47,7 @@ Le classi di materiale prese in considerazione sono:
     \item vegetazione e altri materiali biologici.
 \end{itemize}
 Una caratteristica degna di nota del dataset è che in corrispondenza di lunghezze d'onda il cui valore di riflettanza fosse stato eccessivamente sporcato da gas atmosferici questo è stato impostato a $-1.23 \cdot 10^{34}$, il quale corrisponde al "deleted channel" del software SPECPR (SPECtrum Processing Routines). Di conseguenza questi valori dovranno essere rimossi, per evitare che il modello prenda degli input inconsistenti durante il processo di allenamento.\\
-In totale sono stati presi in considerazione 61453 esempi, con la distribuzione in classi riportata in figura \ref{distr_esempi}. Come si può notare dal grafico, ci troviamo in presenza di dati sbilanciati, con più della metà appartenente alla classe di rocce e minerali, una minima parte appartenente a rivestimenti e liquidi (in totale $1.5\%$), e i restanti esempi circa equidistribuiti tra le restanti classi.
+In totale sono stati presi in considerazione 61453 esempi, con la distribuzione in classi riportata in figura \ref{distr_esempi}. Come si può notare dal grafico, ci troviamo in presenza di dati sbilanciati, con più della metà appartenente alla classe di rocce e minerali, una minima parte appartenente a rivestimenti e liquidi (in totale $1.5\%$), e i restanti esempi circa equi-distribuiti tra le restanti classi.
 
 \begin{figure}
     \centering
@@ -67,7 +67,7 @@ In primo luogo è stato necessario formattare i dati contenuti nel dataset in mo
     \item $5 \rightarrow$ terreno
     \item $6 \rightarrow$ vegetazione
 \end{itemize}
-Successivamente ci sono $k$ numeri che rappresentano lo spettro luminoso, seguiti da altrettanti per le lunghezze d'onda corrispondenti. Più in dettaglio, il numero n-esimo nell'array dello spettro luminoso corrisponde all'n-esimo nell'array delle lunghezze d'onda. Il valore $k$ dipende dallo strumento usato per la rilevazione.\\
+Successivamente ci sono $k$ numeri che rappresentano lo spettro luminoso, seguiti da altrettanti per le lunghezze d'onda corrispondenti. Più in dettaglio, il numero n-esimo nell'array dello spettro luminoso corrisponde al n-esimo nell'array delle lunghezze d'onda. Il valore $k$ dipende dallo strumento usato per la rilevazione.\\
 Vista l'eterogeneità delle righe del file, le quali hanno lunghezze diverse a causa della diversità delle misurazioni effettuate, si è resa necessaria una fase di uniformazione. Questa è stata effettuata usando il software proprietario MATLAB\_R2021A, lo script è riportato in \ref{script_matlab}.
 
 \lstset{
