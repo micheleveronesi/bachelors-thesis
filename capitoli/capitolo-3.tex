@@ -3,19 +3,22 @@
 % !TEX root = ../tesi.tex
 
 %**************************************************************
-\chapter{Algoritmo per il calcolo della traiettoria}
+\chapter{Progettazione e sviluppo del middleware}
 \label{cap:business-logic}
 %**************************************************************
 
-\intro{In questa sezione si documenterà la realizzazione della business logic per il calcolo della traiettoria e l'interfacciamento con il drone.}\\
+\intro{In questa sezione si documenterà la realizzazione del middleware per il calcolo della traiettoria e l'interfacciamento con il drone.}\\
 
 %**************************************************************
 
 \section{Strumenti utilizzati}
-Il linguaggio scelto per sviluppare questa componente della Proof of Concept è Java nella versione 11. Si è usato l'IDE IntelliJ IDEA Education, il quale offre un ambiente di sviluppo integrato sia per Java che per Python. In questo modo è stato possibile eseguire il server per le predizioni insieme al modulo del programma in Java che si interfaccia con questo in modo molto semplificato.
+Il linguaggio scelto per sviluppare questa componente della Proof of Concept è Java nella versione 11.
+Questo è stato scelto per la sua predisposizione alla gestione della concorrenza: infatti l'interfaccia esposta dal middleware sarà in futuro utilizzata da più droni contemporaneamente, addetti alla scansione di un unico campo. Tuttavia durante il tirocinio ci si è concentrati a predisporre l'applicazione per un solo drone, questo per via delle risorse temporali limitate.\\
+Si è usato l'IDE IntelliJ IDEA Education, il quale offre un ambiente di sviluppo integrato sia per Java che per Python. In questo modo è stato possibile eseguire il server per le predizioni insieme al modulo del programma in Java che si interfaccia con questo in modo molto semplificato.
+Il progetto è stato gestito con Maven.
 
 \section{Architettura generale}
-L'architettura data all'applicazione è quella del monolite a strati, di cui si può vedere una rappresentazione ad alto livello nella figura \ref{fig:layered_architecture}. Il principale vantaggio che si ottiene dall'adozione di questa architettura è alta testabilità: infatti è molto semplice creare delle componenti di mock o addirittura layer interi che sostituiscono quelli reali, al fine di testare gli strati superiori.
+L'architettura data all'applicazione è quella del monolite a strati, di cui si può vedere una rappresentazione ad alto livello nella figura \ref{fig:layered_architecture}. Il principale vantaggio che si ottiene dall'adozione di questa architettura è l'alta testabilità: infatti è molto semplice creare delle componenti di mock o addirittura layer interi che sostituiscono quelli reali, al fine di testare gli strati superiori.
     
 \begin{figure}
     \centering
@@ -42,13 +45,13 @@ A questo livello, oltre alle classi per la persistenza che si interfacciano con 
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{immagini/model_classes.png}
+    \includegraphics[width=0.7\textwidth]{immagini/model_classes.png}
     \caption{Diagramma delle classi per l'interfacciamento con la rete neurale}
     \label{fig:class_diagram_neural_network}
 \end{figure}
 
 \subsection{Strato di business}
-Salendo, a questo livello, troviamo l'insieme delle classi atte al calcolo del percorso che il drone dovrà eseguire. Si riporta nell'algoritmo \ref{alg:calculate_track} lo pseudo-codice per il calcolo del percorso. L'input sono due array paralleli $x$ e $y$ di grandezza $n$ (con $n$ il numero di punti da attraversare) contenenti le coordinate. Possiamo notare come questo problema è riconducibile ad un grafo completo $K_n$, in cui ogni nodo è connesso da un arco a tutti gli altri. Ognuno di questi archi ha un costo di percorrenza che dipende direttamente dalla distanza tra i due punti, espressi in coordinate. Ci troviamo di fronte al problema del commesso viaggiatore.\\
+Salendo, a questo livello, troviamo l'insieme delle classi addette al calcolo del percorso che il drone dovrà eseguire. Si riporta nell'algoritmo \ref{alg:calculate_track} lo pseudo-codice per il calcolo del percorso. L'input sono due array paralleli $x$ e $y$ di grandezza $n$ (con $n$ il numero di punti da attraversare) contenenti le coordinate. Possiamo notare come questo problema è riconducibile ad un grafo completo $K_n$, in cui ogni nodo è connesso da un arco a tutti gli altri. Ognuno di questi archi ha un costo di percorrenza che dipende direttamente dalla distanza tra i due punti, espressi in coordinate. Ci troviamo di fronte al problema del commesso viaggiatore.\\
 È possibile vedere il diagramma delle classi per questo layer nella figura \ref{fig:class_diagram_business}.
 
 \begin{figure}
@@ -59,20 +62,19 @@ Salendo, a questo livello, troviamo l'insieme delle classi atte al calcolo del p
 \end{figure}
 
 \subsubsection{Problema del commesso viaggiatore}
-Il nome nasce da una tipica rappresentazione del problema: dato un insieme di città da visitare una ed una sola volta e note le distanze tra queste, trovare il tragitto di minima percorrenza che un commesso viaggiatore deve eseguire per effettuare tutte le consegne e ritornare al punto di partenza. È stato dimostrato che questo problema è \textit{NP-hard}, in quanto non esiste un algoritmo che lo risolva in tempo polinomiale. L'unico metodo di risoluzione efficace è l'enumerazione totale dei possibili percorsi, che ricade nella classe di complessità computazionale $\theta(n!)$.
+Il nome nasce da una tipica rappresentazione del problema: dato un insieme di città da visitare una ed una sola volta e note le distanze tra queste, trovare il tragitto di minima percorrenza che un commesso viaggiatore deve eseguire per effettuare tutte le consegne e ritornare al punto di partenza. È stato dimostrato che questo problema è \textit{NP-hard}, in quanto non esiste un algoritmo che lo risolva in tempo polinomiale. L'unico metodo di risoluzione efficace è l'enumerazione totale dei possibili percorsi, che ricade nella classe di complessità computazionale $\Theta(n!)$.
 
 \subsubsection{Algoritmo euristico di risoluzione}
-Per affrontare il problema si è deciso di realizzare un algoritmo euristico, ovvero la cui soluzione prodotta è probabilmente buona ma non ottima.
-Come si può notare, il costo computazionale della procedura \verb|nearest_point| è lineare, dunque il costo totale della procedura rientra nella classe di algoritmi $\theta(n^2)$ con consumo di memoria costante. Considerando che nell'applicazione reale il valore di $n$ non raggiungerà mai valori elevati, il risultato è accettabile. Inoltre è possibile ottimizzare questo algoritmo durante l'implementazione rimuovendo i punti già inclusi nel cammino dagli array $x$ e $y$ invece di porre le coordinate a infinito.
-
-\subsubsection{Dimostrazione di correttezza}
-Assumendo la correttezza della funzione \verb|calculate_distance(x_a, y_a, x_b, y_b)| e che si completi in tempo $\theta(1)$ restituendo il valore della distanza tra i due punti identificati dalle coordinate passate come parametro, possiamo fornire una dimostrazione di correttezza dell'algoritmo. In particolare assumiamo che la PRE-condizione della funzione appena menzionata asserisca che i valori in ingresso identifichino le coordinate di due punti $A$ e $B$, i quali potrebbero coincidere; la POST-condizione invece stabilisce che venga ritornato un valore numerico, il quale identifica la distanza tra i due punti, dunque pari a $0$ se e solo se $A == B$.\\
-Per dimostrare la correttezza della procedura riportata in \ref{alg:nearest_point}, è necessario dimostrare la correttezza del ciclo al suo interno. In particolare l'invariante di ciclo è che all'inizio di ogni iterazione la variabile $minIndex$ contiene l'indice del punto più vicino dal punto con coordinate $x\_from$ e $y\_from$ contenuto nei sotto array $x\_to[1 \dotso i-1]$ e $y\_to[1 \dotso i-1]$, mentre la variabile $minDistance$ contiene il valore della distanza tra il punto di partenza e il punto contenuto nell'array nella cella $minIndex$.
+Per affrontare il problema si è deciso di realizzare un algoritmo greedy euristico, ovvero la cui soluzione prodotta è probabilmente buona ma non ottima.
+Come si può notare, il costo computazionale della procedura \verb|nearest_point| è lineare, dunque il costo totale della procedura rientra nella classe di algoritmi $\Theta(n^2)$ con consumo di memoria costante. Considerando che nell'applicazione reale il valore di $n$ non raggiungerà mai valori elevati, il risultato è accettabile. Inoltre è possibile ottimizzare questo algoritmo durante l'implementazione rimuovendo i punti già inclusi nel cammino dagli array $x$ e $y$ invece di porre le coordinate a infinito.\\\\
+\textbf{Dimostrazione di correttezza}\\
+Assumendo la correttezza della funzione \verb|calculate_distance(x_a, y_a, x_b, y_b)| e che si completi in tempo $\Theta(1)$ restituendo il valore della distanza tra i due punti identificati dalle coordinate passate come parametro, possiamo fornire una dimostrazione di correttezza dell'algoritmo. In particolare assumiamo che la PRE-condizione della funzione appena menzionata asserisca che i valori in ingresso identifichino le coordinate di due punti $A$ e $B$, i quali potrebbero coincidere; la POST-condizione invece stabilisce che venga ritornato un valore numerico, il quale identifica la distanza tra i due punti, dunque pari a $0$ se e solo se $A == B$.\\
+Per dimostrare la correttezza della procedura riportata in \ref{alg:nearest_point}, è necessario dimostrare la correttezza del ciclo al suo interno. In particolare l'invariante di ciclo è che all'inizio di ogni iterazione la variabile $minIndex$ contiene l'indice del punto più vicino dal punto con coordinate $x\_from$ e $y\_from$ contenuto nei sotto array $x\_to[1 \dotso i-1]$ e $y\_to[1 \dotso i-1]$, mentre la variabile $minDistance$ contiene il valore della distanza tra il punto di partenza e il punto indicizzato da $minIndex$.
 
 \begin{itemize}
-    \item Inizializzazione: prima dell'inizio del ciclo i sottoarray $x\_to[1 \dotso i-1]$ e $y\_to[1 \dotso i-1]$ sono vuoti, dunque non esiste un punto che abbia una distanza valida dal punto di partenza.
+    \item Inizializzazione: prima dell'inizio del ciclo vale $i=1$, quindi i sottoarray $x\_to[1 \dotso i-1]$ e $y\_to[1 \dotso i-1]$ sono vuoti, dunque non esiste un punto che abbia una distanza valida dal punto di partenza.
     \item Conservazione: assumendo che prima di ogni iterazione l'invariante sia rispettato, possiamo notare che aggiungendo l'elemento i-esimo ai sottoarray finora considerati l'invariante resta valido, infatti il punto più vicino viene aggiornato solo se la sua distanza è minore di quella più piccola finora individuata.
-    \item Conclusione: dopo l'ultima iterazione, quando $i == n$ sappiamo che $minIndex$ contiene l'indice del punto più vicino a quello di partenza compreso in $x\_to[1 \dotso n]$ e $x\_to[1 \dotso n]$, dunque non resta che ritornare tale valore.
+    \item Conclusione: dopo l'ultima iterazione, quando $i == n+1$ sappiamo che $minIndex$ contiene l'indice del punto più vicino a quello di partenza compreso in $x\_to[1 \dotso n]$ e $x\_to[1 \dotso n]$, dunque non resta che ritornare tale valore.
 \end{itemize}
 
 Una volta fatta questa dimostrazione è banale dedurre la correttezza dell'algoritmo di calcolo del percorso riportato in \ref{alg:calculate_track}. La PRE-condizione di questo è che i punti negli array $x[1 \dotso n]$ e $y[1 \dotso n]$ non siano duplicati e che il punto di partenza identificato dalle coordinate $x\_start$ e $y\_start$ non sia un valore contenuto negli array. La POST-condizione è che gli array $x\_path[1 \dotso n+1]$ e $y\_path[1 \dotso n+1]$ contengano esattamente i punti contenuti originariamente in $x$ e $y$ e alla posizione $n+1$ il punto di partenza, in modo che il percorso termini nello stesso punto da cui è partito. Inoltre i punti devono essere ordinati secondo una scelta greedy, ovvero ogni volta selezionando il più vicino dal punto precedente. L'invariante di ciclo asserisce quindi che $x\_prev$ e $y\_prev$ contengano l'ultimo punto aggiunto al percorso da cui valutare le distanze verso i possibili punti successivi e che i punti già inseriti nel cammino non vengano più considerati nel calcolo delle distanze.
@@ -148,4 +150,4 @@ Nel nostro specifico caso si tratta di esporne tre:
 \end{figure}
 
 \section{Test e copertura}
-Per garantire un certo grado di affidabilità del codice scritto in Java si sono implementati molti test di unità in modo da garantire la copertura del codice più alta possibile. L'esecuzione dei test e il relativo calcolo della percentuale di righe di codice coperte viene fatto nel processo di Continuous Integration implementato attraverso il servizio offerto TravisCI. Questo offre delle macchine virtuali eseguite su architettura cloud ed offerte as-a-service. Ad ogni push nella repository principale (ospitata su GitHub) viene scatenato uno script che esegue tutti i test di unità, se questi passano allora viene calcolata la coverage. Entrambi i risultati (successo dei test e percentuale di coverage) vengono riportati nella pagina GitHub della repository.
+Per garantire un certo grado di affidabilità del codice scritto in Java si sono implementati molti test di unità in modo da garantire la copertura del codice più alta possibile. L'esecuzione dei test e il relativo calcolo della percentuale di righe di codice coperte viene fatto nel processo di Continuous Integration implementato attraverso il servizio TravisCI. Questo offre delle macchine virtuali eseguite su architettura cloud ed offerte as-a-service. Ad ogni push nella repository principale (ospitata su GitHub) viene scatenato uno script che esegue tutti i test di unità, se questi passano allora viene calcolata la coverage dal servizio coveralls (anch'esso disponibile in cloud as-a-service). Entrambi i risultati (successo dei test e percentuale di coverage) vengono riportati nella pagina GitHub della repository.

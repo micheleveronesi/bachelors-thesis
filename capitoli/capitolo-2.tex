@@ -13,7 +13,7 @@
 \section{Descrizione del dataset}
 \subsection{Descrizione del tipo di dati ricercati}
 Dopo l'incontro con un esperto in geologia, a cui l'azienda si è rivolta per una consulenza, si è deciso di descrivere gli esempi che andranno in input al modello di machine learning attraverso la loro firma spettrale.
-La firma spettrale è una caratteristica che ogni materiale ha, ed è specifica per ogni combinazione di riflessi e assorbimenti delle radiazioni elettromagnetiche (EM) a diverse lunghezze d'onda. Conoscendo la firma spettrale di un oggetto, è possibile identificarlo univocamente.
+La firma spettrale è una caratteristica che ogni materiale possiede, ed è specifica per ogni combinazione di riflessi e assorbimenti delle radiazioni elettromagnetiche (EM) a diverse lunghezze d'onda. Conoscendo la firma spettrale di un oggetto, è possibile identificarlo univocamente.
 Un esempio di firma è quello riportato nella figura \ref{fig:esempio_firma}, presa dal dataset di seguito presentato.
 \begin{figure}
     \centering
@@ -39,14 +39,14 @@ Gli strumenti usati, in dettaglio, sono:
 Le classi di materiale prese in considerazione sono:
 \begin{itemize}
     \item minerali;
-    \item terreno (incluso rocce e minerali);
+    \item terreno;
     \item rivestimenti su superfici rocciose;
     \item liquidi;
     \item composti organici;
     \item materiali artificiali;
     \item vegetazione e altri materiali biologici.
 \end{itemize}
-Una caratteristica degna di nota del dataset è che in corrispondenza di lunghezze d'onda il cui valore di riflettanza fosse stato eccessivamente sporcato da gas atmosferici questo è stato impostato a $-1.23 \cdot 10^{34}$, il quale corrisponde al "deleted channel" del software SPECPR (SPECtrum Processing Routines). Di conseguenza questi valori dovranno essere rimossi, per evitare che il modello prenda degli input inconsistenti durante il processo di allenamento.\\
+Una caratteristica degna di nota del dataset è che in corrispondenza di lunghezze d'onda il cui valore di riflettanza fosse stato eccessivamente sporcato da gas atmosferici questo è stato impostato a $1.23 \cdot 10^{34}$, il quale corrisponde al "deleted channel" del software SPECPR (SPECtrum Processing Routines). Di conseguenza questi valori dovranno essere rimossi, per evitare che il modello prenda degli input inconsistenti durante il processo di allenamento.\\
 In totale sono stati presi in considerazione 61453 esempi, con la distribuzione in classi riportata in figura \ref{distr_esempi}. Come si può notare dal grafico, ci troviamo in presenza di dati sbilanciati, con più della metà appartenente alla classe di rocce e minerali, una minima parte appartenente a rivestimenti e liquidi (in totale $1.5\%$), e i restanti esempi circa equi-distribuiti tra le restanti classi.
 
 \begin{figure}
@@ -57,7 +57,7 @@ In totale sono stati presi in considerazione 61453 esempi, con la distribuzione 
 \end{figure}
 
 \subsection{Elaborazione dei dati}
-In primo luogo è stato necessario formattare i dati contenuti nel dataset in modo che fossero poi pronti come input per il modello di machine learning. Originariamente questi erano contenuti in file formato \verb|.txt| codificati in ASCII. In particolare erano suddivisi in cartelle in base allo spettrometro usato nelle rilevazioni e all'anno in cui sono state effettuate. Dentro ognuna di queste poi, vi era una cartella per ogni classe di materiale, contenente le lo spettro luminoso di ogni materiale. Il file con la lunghezza d'onda era comune per tutti i materiali. Per questa attività si sono realizzati degli script in linguaggio Python, i quali rimuovevano caratteri come spazi e stringhe. Il risultato, per ogni cartella, è un file \verb|data.txt| in cui ogni linea identifica una rilevazione. In particolare il primo numero intero $n \in \{ 0 .. 6 \}$ identifica la classe di appartenenza secondo questa mappa:
+In primo luogo è stato necessario formattare i dati contenuti nel dataset in modo che fossero poi pronti come input per il modello di machine learning. Originariamente questi erano contenuti in file formato \verb|.txt| codificati in ASCII. In particolare erano suddivisi in cartelle in base allo spettrometro usato nelle rilevazioni e all'anno in cui sono state effettuate. Dentro ognuna di queste poi, vi era una cartella per ogni classe di materiale, contenente le lo spettro luminoso di ogni materiale. Il file con la lunghezza d'onda era comune per tutti i materiali. Per questa attività si sono realizzati degli script in linguaggio Python, i quali rimuovevano caratteri come spazi e stringhe. Il risultato, per ogni cartella, è un file \verb|data.txt| in cui ogni riga identifica una rilevazione. In particolare il primo numero intero $n \in \{ 0 .. 6 \}$ identifica la classe di appartenenza secondo questa mappa:
 \begin{itemize}
     \item $0 \rightarrow$ materiali artificiali
     \item $1 \rightarrow$ rivestimenti
@@ -67,7 +67,7 @@ In primo luogo è stato necessario formattare i dati contenuti nel dataset in mo
     \item $5 \rightarrow$ terreno
     \item $6 \rightarrow$ vegetazione
 \end{itemize}
-Successivamente ci sono $k$ numeri che rappresentano lo spettro luminoso, seguiti da altrettanti per le lunghezze d'onda corrispondenti. Più in dettaglio, il numero n-esimo nell'array dello spettro luminoso corrisponde al n-esimo nell'array delle lunghezze d'onda. Il valore $k$ dipende dallo strumento usato per la rilevazione.\\
+Successivamente ci sono $k$ numeri che rappresentano lo spettro luminoso, seguiti da altrettanti per le lunghezze d'onda corrispondenti. Più in dettaglio, il numero i-esimo nell'array dello spettro luminoso corrisponde al i-esimo nell'array delle lunghezze d'onda. Il valore $k$ dipende dallo strumento usato per la rilevazione.\\
 Vista l'eterogeneità delle righe del file, le quali hanno lunghezze diverse a causa della diversità delle misurazioni effettuate, si è resa necessaria una fase di uniformazione. Questa è stata effettuata usando il software proprietario MATLAB\_R2021A, lo script è riportato in \ref{script_matlab}.
 
 \lstset{
@@ -112,7 +112,7 @@ Vista l'eterogeneità delle righe del file, le quali hanno lunghezze diverse a c
 \end{lstlisting}
 dove il file \verb|dataset.txt| è l'unione dei file generati per ogni cartella in precedenza con lo script Python.
 Ogni linea viene divisa nelle tre parti prima descritte, inoltre dai valori di riflettanza e lunghezza d'onda vengono rimossi i canali con valori eliminati a causa di errori troppo elevati nella rilevazione.
-Successivamente i valori vengono interpolati con una spline cubica e portati ad un'unica dimensionalità di 2000 punti. Quello che interessa per identificare un oggetto tramite la firma spettrale, cosi come dedotto dall'incontro con l'esperto in geologia, è l'andamento del valore di riflettanza, ad esempio particolari picchi o oscillazioni. Di conseguenza non è fondamentale che i valori di lunghezza d'onda siano esattamente gli stessi, perciò l'interpolazione avviene considerando gli estremi dell'intervallo delle lunghezze d'onda per ogni esempio. È stato scelto questo particolare metodo di interpolazione visto che assicura la convergenza anche con nodi equispaziati ed è stabile, al contrario di quello polinomiale.\\
+Successivamente tutti gli esempi sono interpolati con una spline cubica e portati in uno spazio a 2000 dimensioni. Quello che interessa per identificare un oggetto tramite la firma spettrale, cosi come dedotto dall'incontro con l'esperto in geologia, è l'andamento del valore di riflettanza, ad esempio particolari picchi o oscillazioni. Di conseguenza non è fondamentale che i valori di lunghezza d'onda siano esattamente gli stessi, perciò l'interpolazione avviene considerando gli estremi dell'intervallo delle lunghezze d'onda per ogni esempio. È stato scelto questo particolare metodo di interpolazione visto che assicura la convergenza anche con nodi equispaziati ed è stabile, al contrario di quello polinomiale.\\
 L'output di questo script sono i due file \verb|x.txt| e \verb|y.txt|, i quali sono pronti ad essere caricati in linguaggio Python per usarli come input del modello di apprendimento automatico.
 
 \section{Sviluppo del modello di machine learning}
@@ -125,7 +125,8 @@ Il vantaggio nell'utilizzo di questo strumento è innanzitutto la possibilità d
 
 \subsection{Scelta del modello}
 \subsubsection{k-nearest-neighbour}
-Una prima considerazione è stata fatta in base al successivo utilizzo del modello allenato: questo dovrà essere interpellato per effettuare predizioni in real time, dunque il tempo di risposta dovrà essere costante. Ne segue che modelli basati su k-nearest-neighbour non possono essere adottati, in quanto il tempo di esecuzione dell'algoritmo di predizione ricade nella classe di complessità $\theta (n)$ dove $n$ è il numero di esempi classificati. Questo perché la classificazione dei nuovi esempi si basa sul calcolo della distanza dagli esempi nel training set in uno spazio d-dimensionale (dove $d$ è il numero di features, nel nostro caso 2000), successivamente si trovano i $k$ esempi più vicini a quello da classificare, tra questi si guarda la classe più frequente. Una volta che un esempio è classificato viene usato nelle predizioni successive, dunque il tempo per il calcolo delle distanze aumenta. Questo è impraticabile in un sistema real-time, il quale richiede che i tempi di risposta siano costanti, ne segue la decisione prima menzionata. Un esempio di funzionamento di questo algoritmo si può osservare nella figura \ref{fig:knn}.
+Una prima considerazione è stata fatta in base al successivo utilizzo del modello allenato: questo dovrà essere interpellato per effettuare predizioni in real time, dunque il tempo di risposta dovrà essere costante. Ne segue che modelli basati su k-nearest-neighbour non possono essere adottati, in quanto il tempo di esecuzione dell'algoritmo di predizione ricade nella classe di complessità $\Theta (n)$ dove $n$ è il numero di esempi classificati. Questo perché la classificazione dei nuovi esempi si basa sul calcolo della distanza dagli esempi nel training set in uno spazio d-dimensionale (dove $d$ è il numero di features, nel nostro caso 2000), successivamente si trovano i $k$ esempi più vicini a quello da classificare, tra questi si guarda la classe più frequente. Una volta che un esempio è classificato viene usato nelle predizioni successive, dunque il tempo per il calcolo delle distanze aumenta. Questo è impraticabile in un sistema real-time, il quale richiede che i tempi di risposta siano costanti, ne segue la decisione prima menzionata.
+Un esempio di funzionamento di questo algoritmo si può osservare nella figura \ref{fig:knn}.
 
 \begin{figure}
     \centering
@@ -138,11 +139,11 @@ Una prima considerazione è stata fatta in base al successivo utilizzo del model
 Questo tipo di modello è stato preso in considerazione visto che è un algoritmo di apprendimento supervisionato usato spesso per compiti di classificazione. È un modello di classificazione lineare ma può essere usato efficientemente per effettuare classificazioni non lineari usando il \textit{kernel trick}. Inoltre è molto efficace in spazi a molte dimensioni.
 Per l'implementazione ci si è affidati alla libreria scikit-learn, la quale offre dei modelli per la classificazione con le seguenti classi:
 \begin{itemize}
-    \item SVC: Support Vector Classification, la cui implementazione è basata sulla libreria \verb|libsvm| scritta in linguaggio C++, dunque offre la velocità di un linguaggio compilato. Il tempo di training è nella classe di complessità $\theta (n^2)$ con $n$ il numero di esempi nel set di training, dunque diventa inutilizzabile con le dimensioni del nostro dataset. Questo perché effettua un tipo di classificazione one-vs-one, dunque allena $k \cdot (k-1)/2$ classificatori binari con $k$ il numero di classi;
+    \item SVC: Support Vector Classification, la cui implementazione è basata sulla libreria \verb|libsvm| scritta in linguaggio C++, dunque offre la velocità di un linguaggio compilato. Il tempo di training è nella classe di complessità $\Theta (n^2)$ con $n$ il numero di esempi nel set di training, dunque diventa inutilizzabile con le dimensioni del nostro dataset. Questo perché effettua un tipo di classificazione one-vs-one, dunque allena $k \cdot (k-1)/2$ classificatori binari con $k$ il numero di classi;
     \item NuSVC: simile al precedente ma aggiunge un parametro per controllare il numero dei support vectors;
     \item LinearSVC: questo è stato il tipo di modello che si è provato ad utilizzare nel nostro caso. A differenza dei precedenti allena dei classificatori di tipo one-vs-all, ovvero un classificatore per ogni classe. Ne segue che non c'è più la complessità quadratica per l'algoritmo di allenamento. È simile alla classe SVC con parametro nel costruttore \verb|kernel='linear'|, tuttavia la sua implementazione si basa sulla libreria \verb|liblinear|, anch'essa scritta in C++ ma che scala meglio all'aumentare delle dimensioni del dataset.
 \end{itemize}
-Il modello è stato inserito in una pipeline che prevedesse uno step precedente per la normalizzazione delle features tramite la classe \verb|StandardScaler| offerta dalla stessa libreria. Si è applicata inoltre la procedura di hold-out, che prevede la suddivisione del dataset in due parti, training e validation set. La dimensione scelta per il primo è $80\%$, per il secondo il restante $20\%$, la suddivisione è stata effettuata in modo casuale usando la funzione \verb|train_test_split| offerta dalla stessa libreria.\\
+Il modello è stato inserito in una pipeline che prevedesse uno step precedente per la normalizzazione delle features tramite la classe \verb|StandardScaler| offerta dalla stessa libreria. Si è applicata inoltre la procedura di cross-validation, che prevede la suddivisione del dataset in due parti disgiunte, training e validation set. La dimensione scelta per il primo è $80\%$, per il secondo il restante $20\%$, la suddivisione è stata effettuata in modo casuale usando la funzione \verb|train_test_split| offerta dalla stessa libreria.\\
 Successivamente il modello allenato è stato testato valutando l'accuratezza nell'effettuare le predizioni sul set di validazione, le prove hanno dato esito negativo visto che non si è superato il $62\%$ in questa metrica.
 
 \begin{figure}
