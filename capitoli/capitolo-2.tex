@@ -14,7 +14,7 @@
 \subsection{Descrizione del tipo di dati ricercati}
 Dopo l'incontro con un esperto in geologia, a cui l'azienda si è rivolta per una consulenza, si è deciso di descrivere gli esempi che andranno in input al modello di machine learning attraverso la loro firma spettrale.
 La firma spettrale è una caratteristica che ogni materiale possiede, ed è specifica per ogni combinazione di riflessi e assorbimenti delle radiazioni elettromagnetiche (EM) a diverse lunghezze d'onda. Conoscendo la firma spettrale di un oggetto, è possibile identificarlo univocamente.
-Un esempio di firma è quello riportato nella figura \ref{fig:esempio_firma}, presa dal dataset di seguito presentato.
+Un esempio di firma è quello riportato nella figura \ref{fig:esempio_firma}, presa dal dataset utilizzato per lo studio di seguito presentato.
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{esempio_firma.png}
@@ -24,7 +24,7 @@ Un esempio di firma è quello riportato nella figura \ref{fig:esempio_firma}, pr
 
 \subsection{USGS Spectral Library}
 Il dataset scelto per verificare la fattibilità della classificazione di oggetti tramite la loro firma spettrale è stato quello dello United States
-Geological Survey, un'agenzia scientifica del governo degli Stati Uniti d'America.
+Geological Survey, un'agenzia scientifica governativa degli Stati Uniti d'America.
 Il dataset è denominato USGS Spectral Library Version 7.
 Questo insieme di dati è stato raccolto nel corso degli anni dai ricercatori dell'ente menzionato facendo rilevazioni su migliaia di materiali in laboratorio,
 usando diversi tipi di spettrometri, i quali coprono lunghezze d'onda che vanno dall'ultravioletto all'infrarosso (da \unit{0.2}{\micro\meter} a \unit{200}{\micro\meter}).
@@ -47,7 +47,7 @@ Le classi di materiale prese in considerazione sono:
     \item vegetazione e altri materiali biologici.
 \end{itemize}
 Una caratteristica degna di nota del dataset è che in corrispondenza di lunghezze d'onda il cui valore di riflettanza fosse stato eccessivamente sporcato da gas atmosferici questo è stato impostato a $1.23 \cdot 10^{34}$, il quale corrisponde al "deleted channel" del software SPECPR (SPECtrum Processing Routines). Di conseguenza questi valori dovranno essere rimossi, per evitare che il modello prenda degli input inconsistenti durante il processo di allenamento.\\
-In totale sono stati presi in considerazione 61453 esempi, con la distribuzione in classi riportata in figura \ref{distr_esempi}. Come si può notare dal grafico, ci troviamo in presenza di dati sbilanciati, con più della metà appartenente alla classe di rocce e minerali, una minima parte appartenente a rivestimenti e liquidi (in totale $1.5\%$), e i restanti esempi circa equi-distribuiti tra le restanti classi.
+In totale sono stati presi in considerazione 61453 esempi, con la distribuzione in classi riportata in figura \ref{distr_esempi}. Come si può notare dal grafico, ci troviamo in presenza di dati sbilanciati, con più della metà appartenente alla classe di rocce e minerali, una minima parte appartenente a rivestimenti e liquidi (in totale $1.5\%$), e i restanti esempi circa equi-distribuiti tra le altre classi.
 
 \begin{figure}
     \centering
@@ -57,7 +57,7 @@ In totale sono stati presi in considerazione 61453 esempi, con la distribuzione 
 \end{figure}
 
 \subsection{Elaborazione dei dati}
-In primo luogo è stato necessario formattare i dati contenuti nel dataset in modo che fossero poi pronti come input per il modello di machine learning. Originariamente questi erano contenuti in file formato \verb|.txt| codificati in ASCII. In particolare erano suddivisi in cartelle in base allo spettrometro usato nelle rilevazioni e all'anno in cui sono state effettuate. Dentro ognuna di queste poi, vi era una cartella per ogni classe di materiale, contenente le lo spettro luminoso di ogni materiale. Il file con la lunghezza d'onda era comune per tutti i materiali. Per questa attività si sono realizzati degli script in linguaggio Python, i quali rimuovevano caratteri come spazi e stringhe. Il risultato, per ogni cartella, è un file \verb|data.txt| in cui ogni riga identifica una rilevazione. In particolare il primo numero intero $n \in \{ 0 .. 6 \}$ identifica la classe di appartenenza secondo questa mappa:
+In primo luogo è stato necessario formattare i dati contenuti nel dataset in modo che fossero poi pronti come input per il modello di machine learning. Originariamente questi erano contenuti in file testuali codificati in ASCII. In particolare erano suddivisi in cartelle in base allo spettrometro usato nelle rilevazioni e all'anno in cui sono state effettuate. Dentro ognuna di queste poi, vi era una cartella per ogni classe di materiale, contenente le lo spettro luminoso di ogni materiale. Il file con la lunghezza d'onda era comune per tutti i materiali. Per questa attività si sono realizzati degli script in linguaggio Python, i quali rimuovevano caratteri come spazi e stringhe. Il risultato, per ogni cartella, è un file unico codificato in ASCII in cui ogni riga identifica una rilevazione. In particolare il primo numero intero $n \in \{ 0 .. 6 \}$ identifica la classe di appartenenza secondo questa mappa:
 \begin{itemize}
     \item $0 \rightarrow$ materiali artificiali
     \item $1 \rightarrow$ rivestimenti
@@ -67,8 +67,8 @@ In primo luogo è stato necessario formattare i dati contenuti nel dataset in mo
     \item $5 \rightarrow$ terreno
     \item $6 \rightarrow$ vegetazione
 \end{itemize}
-Successivamente ci sono $k$ numeri che rappresentano lo spettro luminoso, seguiti da altrettanti per le lunghezze d'onda corrispondenti. Più in dettaglio, il numero i-esimo nell'array dello spettro luminoso corrisponde al i-esimo nell'array delle lunghezze d'onda. Il valore $k$ dipende dallo strumento usato per la rilevazione.\\
-Vista l'eterogeneità delle righe del file, le quali hanno lunghezze diverse a causa della diversità delle misurazioni effettuate, si è resa necessaria una fase di uniformazione. Questa è stata effettuata usando il software proprietario MATLAB\_R2021A, lo script è riportato in \ref{script_matlab}.
+Successivamente ci sono $k$ numeri che rappresentano lo spettro luminoso, seguiti da altrettanti per le lunghezze d'onda corrispondenti. Più in dettaglio, il numero i-esimo nell'array dello spettro luminoso corrisponde al i-esimo nell'array delle lunghezze d'onda. Il valore $k$ dipende dallo strumento usato per la rilevazione e corrisponde al numero di punti in cui è campionata la firma spettrale.\\
+Vista l'eterogeneità delle righe del file, le quali hanno lunghezze diverse a causa della diversità delle misurazioni effettuate, si è resa necessaria una fase di uniformazione. Questa è stata effettuata usando il software proprietario MATLAB, lo script è riportato in \ref{script_matlab}.
 
 \lstset{
     commentstyle=\color{ForestGreen},
@@ -77,8 +77,6 @@ Vista l'eterogeneità delle righe del file, le quali hanno lunghezze diverse a c
     label=script_matlab
 }
 \begin{lstlisting}
-    clear;
-    clc;
     dataset = fopen('dataset.txt', 'r');
     y_file = fopen('y.txt', 'w');
     x_file = fopen('x.txt', 'w');
@@ -112,15 +110,16 @@ Vista l'eterogeneità delle righe del file, le quali hanno lunghezze diverse a c
 \end{lstlisting}
 dove il file \verb|dataset.txt| è l'unione dei file generati per ogni cartella in precedenza con lo script Python.
 Ogni linea viene divisa nelle tre parti prima descritte, inoltre dai valori di riflettanza e lunghezza d'onda vengono rimossi i canali con valori eliminati a causa di errori troppo elevati nella rilevazione.
-Successivamente tutti gli esempi sono interpolati con una spline cubica e portati in uno spazio a 2000 dimensioni. Quello che interessa per identificare un oggetto tramite la firma spettrale, cosi come dedotto dall'incontro con l'esperto in geologia, è l'andamento del valore di riflettanza, ad esempio particolari picchi o oscillazioni. Di conseguenza non è fondamentale che i valori di lunghezza d'onda siano esattamente gli stessi, perciò l'interpolazione avviene considerando gli estremi dell'intervallo delle lunghezze d'onda per ogni esempio. È stato scelto questo particolare metodo di interpolazione visto che assicura la convergenza anche con nodi equispaziati ed è stabile, al contrario di quello polinomiale.\\
+Successivamente tutti gli esempi sono interpolati con una spline cubica e portati in uno spazio a 2000 dimensioni. Quello che interessa per identificare un oggetto tramite la firma spettrale, cosi come dedotto dall'incontro con l'esperto in geologia, è l'andamento del valore di riflettanza, ad esempio particolari picchi o oscillazioni. Di conseguenza non è fondamentale che i valori di lunghezza d'onda siano esattamente gli stessi, perciò l'interpolazione avviene considerando gli estremi dell'intervallo delle lunghezze d'onda per ogni esempio. È stato scelto questo particolare metodo di interpolazione visto che assicura la convergenza anche con nodi equi-spaziati ed è stabile, al contrario di quello polinomiale.
+Inoltre nella documentazione del dataset viene riportato che per fare il plot dei grafici (come quello in figura \ref{fig:esempio_firma}) è stato usato il metodo della spline cubica.\\
 L'output di questo script sono i due file \verb|x.txt| e \verb|y.txt|, i quali sono pronti ad essere caricati in linguaggio Python per usarli come input del modello di apprendimento automatico.
 
 \section{Sviluppo del modello di machine learning}
-Tra le varie possibilità che i framework per i machine learning offrono al giorno d'oggi si sono fatte alcune considerazioni sui seguenti, facendo ricadere la scelta finale sulle reti neurali MLP (Multi-Layer-Perceptron).
+Tra le varie possibilità che i framework per i machine learning offrono al giorno d'oggi si sono fatte alcune considerazioni in seguito riportate, facendo ricadere la scelta finale sulle reti neurali MLP (Multi-Layer-Perceptron).
 
 \subsection{Strumento adottato}
 Per questa parte del progetto ci si è affidati allo strumento offerto as-a-service Google Colaboratory, il quale è un'implementazione del progetto Jupyter con base di archiviazione Google Drive.
-I Jupyter notebook sono un'insieme di script python intervallati da testo descrittivo.
+I Jupyter notebook sono un'insieme di script Python intervallati da testo descrittivo.
 Il vantaggio nell'utilizzo di questo strumento è innanzitutto la possibilità di usare hardware come GPU offerte gratuitamente dall'infrastruttura cloud di Google per eseguire gli script. Inoltre è possibile eseguire una parte di codice alla volta o tutto insieme, mantenendo le variabili in memoria RAM per tutta la durata della sessione. È possibile quindi allenare la rete e successivamente eseguire dei test sul modello allenato, stampare grafici con le curve di apprendimento o salvare il modello allenato su Google Drive.
 
 \subsection{Scelta del modello}

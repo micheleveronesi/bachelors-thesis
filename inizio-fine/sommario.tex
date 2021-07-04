@@ -16,18 +16,19 @@
 \chapter*{Sommario}
 
 Il presente documento descrive il lavoro svolto durante il periodo di stage, della durata di circa 320 ore, dal laureando Michele Veronesi presso l'azienda IM4DIGITAL s.r.l.\\
-Il focus del progetto di stage era lo studio di fattibilità di un sistema di navigazione per droni ricognitivi che decidesse la rotta in base allo spettro luminoso degli oggetti sorvolati.\\
+Il focus del progetto di stage era lo studio di fattibilità di un sistema di navigazione per droni ricognitivi che decidesse la rotta in base allo spettro luminoso degli oggetti sorvolati,
+accompagnato dalla realizzazione di una Proof of Concept.\\
 In particolare, è stato necessario inizialmente identificare il dataset su cui fare lo studio, successivamente si è rivelata fondamentale la pulizia di questo.
 Poi è stato richiesto di prendere in considerazione diversi modelli di machine learning e analizzare le prestazioni nel classificare gli oggetti tramite le loro firme spettrali,
 in modo da selezionare il più adatto.
-Infine il modello allenato è stato esposto in un sistema con architettura client-server, con cui si è interfacciata la business logic che effettua il calcolo del percorso (anch'essa realizzata nel corso del tirocinio).\\
+Infine il modello allenato è stato esposto in un sistema con architettura client-server, con cui si è interfacciato il middleware che effettua il calcolo del percorso (anch'esso realizzato nel corso del tirocinio).\\
 La suddivisione in capitoli è la seguente:
 \begin{description}
     \item[{\hyperref[cap:introduzione]{Il primo capitolo}}] presenta la realtà aziendale e gli obiettivi dello stage.
     
-    \item[{\hyperref[cap:machine-learning]{Il secondo capitolo}}] descrive nel dettaglio la parte di machine learning e analisi dei dati.
+    \item[{\hyperref[cap:machine-learning]{Il secondo capitolo}}] racconta nel dettaglio la parte di machine learning e analisi dei dati.
     
-    \item[{\hyperref[cap:business-logic]{Il terzo capitolo}}] racconta la realizzazione della business logic per il calcolo della traiettoria del drone.
+    \item[{\hyperref[cap:business-logic]{Il terzo capitolo}}] descrive la realizzazione del middleware e l'algoritmo per il calcolo della traiettoria del drone.
     
     \item[{\hyperref[cap:conclusione]{Il quarto capitolo}}], infine, porta una valutazione retrospettiva delle attività svolte e alcune considerazioni finali sui possibili epiloghi del progetto.
 \end{description}
